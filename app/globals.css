@@ -3,25 +3,66 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0a0e27;
+  --foreground: #e8eaf6;
+  --card: #151a30;
+  --accent-cyan: #00f0ff;
+  --accent-pink: #ff006e;
+  --accent-purple: #9d4edd;
+  --xp-gradient-start: #ffbe0b;
+  --xp-gradient-end: #fb5607;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Form inputs - dark background, light text for visibility */
+input, textarea, select {
+  color: #e8eaf6 !important;
+  -webkit-text-fill-color: #e8eaf6 !important;
+  background-color: #151a30 !important;
+}
+input::placeholder,
+textarea::placeholder {
+  color: rgba(232, 234, 246, 0.6);
+}
+
+/* Override Chrome autofill - it applies a light background that hides our text */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #151a30 inset !important;
+  -webkit-text-fill-color: #e8eaf6 !important;
+  caret-color: #e8eaf6;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  .glass {
+    @apply bg-[#151a30]/80 backdrop-blur-xl border border-white/5;
+  }
+  .neon-cyan {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  }
+  .neon-pink {
+    box-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
+  }
+.neon-purple {
+  box-shadow: 0 0 20px rgba(157, 78, 221, 0.3);
+}
+
+/* Custom calendar styles */
+.calendar-event {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.calendar-event:hover {
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+}
 }

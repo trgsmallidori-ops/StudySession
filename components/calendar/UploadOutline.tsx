@@ -1,0 +1,152 @@
+'use client';
+
+import { useState, useRef } from 'react';
+import { Upload, X, Loader2 } from 'lucide-react';
+
+interface ParsedOutline {
+  courseName: string;
+  tests: { date: string; description: string }[];
+  assignments: { date: string; description: string }[];
+  schedule: {
+    days: number[] | 'NEEDS_INPUT';
+    startTime: string | 'NEEDS_INPUT';
+    endTime: string | 'NEEDS_INPUT';
+  };
+}
+
+interface UploadOutlineProps {
+  onParsed: (data: ParsedOutline) => void;
+  uploadsUsed: number;
+  uploadLimit: number;
+  onLimitReached: () => void;
+}
+
+export default function UploadOutline({
+  onParsed,
+  uploadsUsed,
+  uploadLimit,
+  onLimitReached,
+}: UploadOutlineProps) {
+  const [dragging, setDragging] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File) => {
+    if (!file) return;
+
+    const validTypes = [
+      'application/pdf',
+      'text/plain',
+      'text/markdown',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    const validExt = ['.pdf', '.txt', '.md', '.docx'];
+    const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+    const isValid =
+      validTypes.includes(file.type) || validExt.includes(ext);
+
+    if (!isValid) {
+      setError('Please upload a PDF, TXT, or Word document');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File must be under 10MB');
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/parse-outline', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.limitReached) {
+          onLimitReached();
+        } else {
+          setError(data.error ?? 'Failed to parse');
+        }
+        return;
+      }
+
+      onParsed(data);
+    } catch {
+      setError('Failed to parse outline');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+    e.target.value = '';
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between text-sm text-foreground/60">
+        <span>
+          {uploadsUsed} / {uploadLimit} uploads used
+        </span>
+      </div>
+
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        onClick={() => inputRef.current?.click()}
+        className={`
+          border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors
+          ${dragging ? 'border-accent-cyan bg-accent-cyan/5' : 'border-white/20 hover:border-white/40'}
+          ${loading ? 'pointer-events-none opacity-70' : ''}
+        `}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".pdf,.txt,.md,.docx"
+          onChange={handleChange}
+          className="hidden"
+        />
+        {loading ? (
+          <Loader2 className="mx-auto animate-spin text-accent-cyan" size={48} />
+        ) : (
+          <>
+            <Upload className="mx-auto text-accent-cyan mb-4" size={48} />
+            <p className="text-foreground font-medium mb-1">
+              Drop your course outline here or click to upload
+            </p>
+            <p className="text-sm text-foreground/60">
+              PDF, TXT, or Word (.docx), max 10MB. AI will extract tests, assignments, and schedule.
+            </p>
+          </>
+        )}
+      </div>
+
+      {error && (
+        <div className="flex items-center gap-2 text-red-400 text-sm">
+          <X size={16} />
+          {error}
+        </div>
+      )}
+    </div>
+  );
+}

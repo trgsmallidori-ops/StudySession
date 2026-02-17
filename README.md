@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Calearnder - Gamified Learning & Calendar Platform
 
-## Getting Started
+A Next.js 14 platform combining AI-powered calendar parsing, gamified courses with XP & achievements, and monthly skill-based competitions.
 
-First, run the development server:
+## Tech Stack
+
+- **Frontend:** Next.js 14 (App Router), React, Tailwind CSS, Framer Motion
+- **Backend:** Supabase (PostgreSQL, Auth, Storage, Row Level Security)
+- **Payments:** Stripe Checkout & Webhooks
+- **AI:** OpenAI API (GPT-4 for parsing course outlines)
+- **Email:** Nodemailer with Gmail SMTP
+
+## Setup
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment variables
+
+Copy `.env.example` to `.env.local` and fill in your credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+### 3. Supabase setup
+
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Run the migration in `supabase/migrations/001_initial_schema.sql` in the SQL Editor
+3. Enable Email and OAuth providers (Google, GitHub) in Authentication settings
+4. Create Storage buckets: `course-outlines` and `course-thumbnails`
+5. Add your Supabase URL and anon key to `.env.local`
+
+### 4. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/` - Next.js App Router pages
+- `components/` - React components
+- `lib/` - Utilities, Supabase clients, database types
+- `supabase/migrations/` - Database schema
 
-## Learn More
+## Deployment (Vercel)
 
-To learn more about Next.js, take a look at the following resources:
+1. Connect your GitHub repo to Vercel
+2. Add all environment variables from `.env.example`
+3. Set up Stripe webhook: `https://your-domain.com/api/stripe/webhook`
+4. Cron: Race winner calculation runs on 1st of each month at 2am
+5. **Make yourself admin:** After signing up, run this in the Supabase SQL Editor:
+   ```sql
+   UPDATE users SET is_admin = true WHERE email = 'your@email.com';
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Subscription Tiers
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Scholar** ($30/year) - AI calendar parsing, unlimited uploads
+- **Champion** ($10/month) - Learn section, XP system, race eligibility
+- **Ultimate** ($11/month) - All features, best value
+# Calearnder

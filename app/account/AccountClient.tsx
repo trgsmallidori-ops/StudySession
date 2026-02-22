@@ -236,7 +236,7 @@ export default function AccountClient({ profile, userEmail }: Props) {
                 ) : (
                   <div className="px-4 py-3 rounded-lg bg-background/30 border border-white/5 text-foreground/60 flex items-center justify-between">
                     <span>@{profile?.username}</span>
-                    <span className="text-xs text-foreground/40">
+                    <span className="text-xs text-foreground/40" suppressHydrationWarning>
                       Next change: {usernameNextAllowed?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
                   </div>

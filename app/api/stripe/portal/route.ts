@@ -21,7 +21,12 @@ export async function POST(_request: Request) {
     .single();
 
   const subscriptionId = profile?.subscription_id;
+  const portalLoginUrl = process.env.STRIPE_PORTAL_LOGIN_URL;
+
   if (!subscriptionId) {
+    if (portalLoginUrl) {
+      return NextResponse.json({ url: portalLoginUrl });
+    }
     return NextResponse.json(
       { error: 'No subscription found' },
       { status: 400 }
@@ -42,6 +47,9 @@ export async function POST(_request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error('Portal error:', error);
+    if (portalLoginUrl) {
+      return NextResponse.json({ url: portalLoginUrl });
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Portal failed' },
       { status: 500 }

@@ -29,7 +29,7 @@ export default function BlogClient({ posts }: BlogClientProps) {
           <Link key={post.id} href={`/blog/${post.slug}`}>
             <article className="glass rounded-xl p-6 border border-white/5 hover:border-accent-cyan/20 transition-colors">
               <h2 className="text-2xl font-semibold mb-2">{post.title}</h2>
-              <p className="text-foreground/60 text-sm mb-4">
+              <p className="text-foreground/60 text-sm mb-4" suppressHydrationWarning>
                 {post.published_at && format(new Date(post.published_at), 'd MMMM yyyy', { locale: dateLocale })}
               </p>
               <p className="text-foreground/80 line-clamp-2">

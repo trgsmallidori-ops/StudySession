@@ -50,7 +50,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-8 pt-8 border-t border-white/5 text-center text-sm text-foreground/50">
+        <div className="mt-8 pt-8 border-t border-white/5 text-center text-sm text-foreground/50" suppressHydrationWarning>
           {t.footer.copyright.replace('{year}', String(year))}
         </div>
       </div>

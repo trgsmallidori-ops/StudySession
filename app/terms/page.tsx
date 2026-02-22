@@ -13,7 +13,8 @@ export default function TermsPage() {
       </h1>
       <div className="prose prose-invert max-w-none space-y-6">
         <p className="text-foreground/80">
-          {isFr ? 'Dernière mise à jour : ' : 'Last updated: '}{new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US')}
+          {isFr ? 'Dernière mise à jour : ' : 'Last updated: '}
+          <span suppressHydrationWarning>{new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US')}</span>
         </p>
         {isFr ? (
           <>

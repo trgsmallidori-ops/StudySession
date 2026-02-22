@@ -125,6 +125,7 @@ export default function PricingContent() {
                 {t.pricing.mostPopular}
               </div>
             )}
+            <div className="flex-1 flex flex-col">
             <div className={`p-3 rounded-xl bg-${plan.color}/10 w-fit mb-6`}>
               <plan.icon className={`text-${plan.color}`} size={32} />
             </div>
@@ -134,7 +135,7 @@ export default function PricingContent() {
               <span className="text-4xl font-bold">{plan.price}</span>
               <span className="text-foreground/60">{plan.period}</span>
             </div>
-            <ul className="space-y-3 mb-8">
+            <ul className="space-y-3 mb-8 flex-1">
               {plan.features.map((f) => (
                 <li key={f} className="flex items-center gap-2">
                   <Check className="text-green-400 flex-shrink-0" size={18} />
@@ -142,6 +143,7 @@ export default function PricingContent() {
                 </li>
               ))}
             </ul>
+            </div>
             {authenticated === false ? (
               <Link
                 href={`/signup?redirect=/pricing${feature ? `?feature=${feature}` : ''}`}
@@ -197,7 +199,7 @@ export default function PricingContent() {
                 {plan.cta}
               </Link>
             )}
-            <p className="mt-auto pt-4 text-center text-xs text-foreground/40">
+            <p className="mt-4 text-center text-xs text-gray-500">
               {t.pricing.cancelAnytime}
             </p>
           </div>

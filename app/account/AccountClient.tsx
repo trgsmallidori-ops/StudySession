@@ -293,7 +293,7 @@ export default function AccountClient({ profile, userEmail }: Props) {
                   href="/pricing"
                   className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-semibold transition-colors bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30"
                 >
-                  {t.dashboard.upgradePlan}
+                  {t.dashboard.managePlan}
                 </Link>
               )}
             </div>

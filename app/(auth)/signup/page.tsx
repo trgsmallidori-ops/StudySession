@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+
+type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>('idle');
+  const [usernameMessage, setUsernameMessage] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -18,26 +24,50 @@ export default function SignupPage() {
   const supabase = createClient();
   const { t } = useLanguage();
 
+  const checkUsername = useCallback(async (value: string) => {
+    const cleaned = value.trim().toLowerCase();
+    if (!cleaned) { setUsernameStatus('idle'); setUsernameMessage(''); return; }
+    if (cleaned.length < 3) { setUsernameStatus('invalid'); setUsernameMessage('At least 3 characters'); return; }
+    if (cleaned.length > 20) { setUsernameStatus('invalid'); setUsernameMessage('Max 20 characters'); return; }
+    if (!/^[a-z0-9_]+$/.test(cleaned)) { setUsernameStatus('invalid'); setUsernameMessage('Letters, numbers, underscores only'); return; }
+
+    setUsernameStatus('checking');
+    try {
+      const res = await fetch(`/api/user/check-username?username=${encodeURIComponent(cleaned)}`);
+      const data = await res.json();
+      if (data.available) {
+        setUsernameStatus('available');
+        setUsernameMessage('Username is available');
+      } else {
+        setUsernameStatus('taken');
+        setUsernameMessage(data.reason || 'Username is already taken');
+      }
+    } catch {
+      setUsernameStatus('idle');
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => checkUsername(username), 500);
+    return () => clearTimeout(timer);
+  }, [username, checkUsername]);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!agreeToTerms) {
-      setError(t.auth.mustAgree);
-      return;
-    }
+    if (!agreeToTerms) { setError(t.auth.mustAgree); return; }
+    if (!username.trim()) { setError('Please choose a username'); return; }
+    if (usernameStatus !== 'available') { setError('Please choose a valid, available username'); return; }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: { data: { full_name: fullName, username: username.trim().toLowerCase() } },
     });
 
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
-    }
+    if (error) { setError(error.message); setLoading(false); return; }
 
     setSuccess(true);
     setLoading(false);
@@ -46,10 +76,7 @@ export default function SignupPage() {
 
   const handleOAuth = async (provider: 'google' | 'github') => {
     setError(null);
-    if (!agreeToTerms) {
-      setError(t.auth.mustAgree);
-      return;
-    }
+    if (!agreeToTerms) { setError(t.auth.mustAgree); return; }
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -57,20 +84,20 @@ export default function SignupPage() {
     if (error) setError(error.message);
   };
 
+  const usernameIcon = () => {
+    if (usernameStatus === 'checking') return <Loader2 size={16} className="animate-spin text-foreground/40" />;
+    if (usernameStatus === 'available') return <CheckCircle size={16} className="text-green-400" />;
+    if (usernameStatus === 'taken' || usernameStatus === 'invalid') return <XCircle size={16} className="text-red-400" />;
+    return null;
+  };
+
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="glass rounded-2xl p-8 w-full max-w-md border border-accent-cyan/20 text-center">
           <h1 className="text-2xl font-bold mb-4 text-accent-cyan">{t.auth.checkEmail}</h1>
-          <p className="text-foreground/80 mb-6">
-            {t.auth.confirmLink}
-          </p>
-          <Link
-            href="/login"
-            className="text-accent-cyan hover:underline"
-          >
-            {t.auth.backToLogin}
-          </Link>
+          <p className="text-foreground/80 mb-6">{t.auth.confirmLink}</p>
+          <Link href="/login" className="text-accent-cyan hover:underline">{t.auth.backToLogin}</Link>
         </div>
       </div>
     );
@@ -93,6 +120,33 @@ export default function SignupPage() {
               className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
             />
           </div>
+
+          <div>
+            <label className="block text-sm text-foreground/80 mb-2">
+              Username <span className="text-accent-cyan">*</span>
+              <span className="text-foreground/50 ml-1 text-xs">(shown on leaderboards)</span>
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40">@</span>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="your_username"
+                className="w-full pl-8 pr-10 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                {usernameIcon()}
+              </span>
+            </div>
+            {usernameMessage && (
+              <p className={`text-xs mt-1 ${usernameStatus === 'available' ? 'text-green-400' : 'text-red-400'}`}>
+                {usernameMessage}
+              </p>
+            )}
+          </div>
+
           <div>
             <label className="block text-sm text-foreground/80 mb-2">{t.auth.email}</label>
             <input
@@ -103,6 +157,7 @@ export default function SignupPage() {
               className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
             />
           </div>
+
           <div>
             <label className="block text-sm text-foreground/80 mb-2">{t.auth.password}</label>
             <input
@@ -114,6 +169,7 @@ export default function SignupPage() {
               className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
             />
           </div>
+
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -132,12 +188,12 @@ export default function SignupPage() {
               </Link>
             </span>
           </label>
-          {error && (
-            <p className="text-red-400 text-sm">{error}</p>
-          )}
+
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || usernameStatus === 'checking' || usernameStatus === 'taken' || usernameStatus === 'invalid'}
             className="w-full py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 transition-colors disabled:opacity-50 font-semibold"
           >
             {loading ? t.auth.creatingAccount : t.nav.signUp}
@@ -161,9 +217,7 @@ export default function SignupPage() {
 
         <p className="mt-6 text-center text-sm text-foreground/70">
           {t.auth.haveAccount}{' '}
-          <Link href="/login" className="text-accent-cyan hover:underline">
-            {t.nav.signIn}
-          </Link>
+          <Link href="/login" className="text-accent-cyan hover:underline">{t.nav.signIn}</Link>
         </p>
       </div>
     </div>

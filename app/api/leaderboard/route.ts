@@ -6,7 +6,7 @@ export async function GET() {
 
   const { data, error } = await adminClient
     .from('users')
-    .select('id, full_name, total_xp')
+    .select('id, full_name, username, total_xp')
     .order('total_xp', { ascending: false })
     .limit(20);
 
@@ -15,7 +15,7 @@ export async function GET() {
   const leaderboard = (data ?? []).map((user, i) => ({
     rank: i + 1,
     user_id: user.id,
-    display_name: user.full_name || `User#${String(user.id).slice(-4)}`,
+    display_name: user.username ? `@${user.username}` : (user.full_name || `User#${String(user.id).slice(-4)}`),
     total_xp: user.total_xp ?? 0,
   }));
 

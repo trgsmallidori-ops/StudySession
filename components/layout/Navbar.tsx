@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import { Menu, X, Calendar, BookOpen, Trophy, CreditCard, LogOut, User, Globe } from 'lucide-react';
+import { Menu, X, Calendar, BookOpen, Trophy, CreditCard, LogOut, User, Globe, Settings } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function Navbar() {
@@ -121,6 +121,13 @@ export default function Navbar() {
                   <User size={18} />
                   {t.nav.dashboard}
                 </Link>
+                <Link
+                  href="/account"
+                  className="text-foreground/80 hover:text-accent-cyan transition-colors"
+                  title="Account Settings"
+                >
+                  <Settings size={18} />
+                </Link>
                 <button
                   onClick={handleSignOut}
                   className="flex items-center gap-2 text-foreground/80 hover:text-red-400 transition-colors"
@@ -186,6 +193,14 @@ export default function Navbar() {
                 >
                   <User size={18} />
                   {t.nav.dashboard}
+                </Link>
+                <Link
+                  href="/account"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-foreground/80 hover:text-accent-cyan py-2"
+                >
+                  <Settings size={18} />
+                  Account Settings
                 </Link>
                 <button
                   onClick={() => { handleSignOut(); setMobileOpen(false); }}

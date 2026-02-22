@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('race_entries')
-    .select('*, user:users!user_id(id, full_name)')
+    .select('*, user:users!user_id(id, full_name, username)')
     .eq('race_period_id', racePeriodId);
 
   if (raceType === 'typing') {
@@ -34,10 +34,12 @@ export async function GET(request: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const anonymized = (data ?? []).map((entry, i) => {
+    const u = entry.user as { id: string; full_name: string | null; username: string | null } | null;
+    const display = u?.username ? `@${u.username}` : (u?.full_name || `User#${String(entry.user_id).slice(-4)}`);
     const base = {
       rank: i + 1,
       user_id: entry.user_id,
-      display_name: `User#${String(entry.user_id).slice(-4)}`,
+      display_name: display,
       opted_in_at: entry.opted_in_at,
       final_rank: entry.final_rank,
     };

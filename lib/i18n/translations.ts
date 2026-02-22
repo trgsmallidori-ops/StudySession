@@ -5,7 +5,7 @@ export interface Translations {
   footer: { tagline: string; product: string; legal: string; connect: string; privacy: string; terms: string; refund: string; rules: string; blog: string; contact: string; copyright: string };
   cookie: { message: string; decline: string; accept: string; details: string; privacyLink: string; termsLink: string };
   home: { heroTitle1: string; heroTitle2: string; heroSubtitle: string; getStarted: string; viewPlans: string; threeWays: string; excel: string; smartCalendar: string; smartCalendarDesc: string; tryCalendar: string; learnEarnXp: string; learnEarnXpDesc: string; exploreCourses: string; monthlyRace: string; monthlyRaceDesc: string; joinRace: string; gamifiedLearning: string; yourProgress: string; progressDesc: string; startEarning: string; loading: string };
-  auth: { signIn: string; createAccount: string; resetPassword: string; email: string; password: string; fullName: string; signingIn: string; creatingAccount: string; sending: string; sendResetLink: string; continueGoogle: string; continueGithub: string; noAccount: string; haveAccount: string; forgotPassword: string; backToLogin: string; checkEmail: string; confirmLink: string; resetLink: string; agreeTerms: string; and: string; mustAgree: string };
+  auth: { signIn: string; createAccount: string; resetPassword: string; email: string; password: string; fullName: string; signingIn: string; creatingAccount: string; sending: string; sendResetLink: string; continueGoogle: string; noAccount: string; haveAccount: string; forgotPassword: string; backToLogin: string; checkEmail: string; confirmLink: string; resetLink: string; agreeTerms: string; and: string; mustAgree: string };
   dashboard: { welcomeBack: string; level: string; subscription: string; calendarUploads: string; used: string; freeUploads: string; unlimited: string; xpTotal: string; upgradePlan: string; managePlan: string; manageSubscription: string; managingSubscription: string; calendarDesc: string; learnDesc: string; raceDesc: string; planFeatures: { free: string[]; scholar: string[]; champion: string[]; ultimate: string[] } };
   pricing: { chooseYourPlan: string; subtitle: string; raceEligibility: string; raceEligibilityDetail: string; signInToStart: string; needAccount: string; signIn: string; createAccount: string; unlockLearn: string; unlockDesc: string; mostPopular: string; signInToPurchase: string; loading: string; freeTrial: string; cancelAnytime: string; plans: { scholar: { name: string; description: string; features: string[]; cta: string }; ultimate: { name: string; description: string; features: string[]; cta: string }; champion: { name: string; description: string; features: string[]; cta: string } } };
   contact: { title: string; subtitle: string; name: string; email: string; message: string; send: string; successTitle: string; successMessage: string; failedToSend: string; validation: { nameRequired: string; emailRequired: string; messageMin: string } };
@@ -97,7 +97,6 @@ const translationsData: Record<Locale, Translations> = {
       sending: 'Sending...',
       sendResetLink: 'Send Reset Link',
       continueGoogle: 'Continue with Google',
-      continueGithub: 'Continue with GitHub',
       noAccount: "Don't have an account?",
       haveAccount: 'Already have an account?',
       forgotPassword: 'Forgot password?',
@@ -484,7 +483,6 @@ const translationsData: Record<Locale, Translations> = {
       sending: 'Envoi en cours...',
       sendResetLink: 'Envoyer le lien de réinitialisation',
       continueGoogle: 'Continuer avec Google',
-      continueGithub: 'Continuer avec GitHub',
       noAccount: "Vous n'avez pas de compte ?",
       haveAccount: 'Vous avez déjà un compte ?',
       forgotPassword: 'Mot de passe oublié ?',

@@ -11,8 +11,9 @@ import {
   setHours,
   setMinutes,
 } from 'date-fns';
-import type { CalendarEvent } from '@/lib/database.types';
+import type { CalendarEvent, Class } from '@/lib/database.types';
 import { FileText, ClipboardList, BookOpen, Circle } from 'lucide-react';
+import { WEEK_STARTS_ON } from '@/lib/calendar/constants';
 
 const EVENT_ICONS = {
   test: FileText,
@@ -26,6 +27,7 @@ const HOURS = Array.from({ length: 17 }, (_, i) => i + 7); // 7am to 11pm
 interface WeekViewProps {
   currentDate: Date;
   events: CalendarEvent[];
+  classes: Class[];
   onSelectSlot?: (date: Date) => void;
   onSelectEvent?: (event: CalendarEvent) => void;
 }
@@ -33,11 +35,12 @@ interface WeekViewProps {
 export default function WeekView({
   currentDate,
   events,
+  classes,
   onSelectSlot,
   onSelectEvent,
 }: WeekViewProps) {
   const weekDays = useMemo(() => {
-    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const start = startOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON });
     return Array.from({ length: 7 }, (_, i) => addDays(start, i));
   }, [currentDate]);
 
@@ -105,6 +108,7 @@ export default function WeekView({
                   {getEventsForDay(day).map((event) => {
                     const topPx = (getEventPosition(event) / 100) * HOURS.length * 64;
                     const Icon = EVENT_ICONS[event.event_type] ?? Circle;
+                    const classLabel = event.class_id ? classes.find((c) => c.id === event.class_id)?.name : null;
                     return (
                       <motion.button
                         key={event.id}
@@ -128,8 +132,9 @@ export default function WeekView({
                           <Icon size={12} className="flex-shrink-0 text-foreground/60" />
                           <span className="truncate font-medium">{event.title}</span>
                         </div>
-                        <div className="text-[10px] text-foreground/60 truncate">
-                          {format(new Date(event.due_date), 'h:mm a')}
+                        <div className="text-[10px] text-foreground/60 truncate flex items-center gap-1">
+                          {classLabel && <span>{classLabel}</span>}
+                          <span>{format(new Date(event.due_date), 'h:mm a')}</span>
                         </div>
                       </motion.button>
                     );

@@ -1,11 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { isAdmin } from '@/lib/isAdmin';
 
 export default async function AdminBlogPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !isAdmin(user)) return null;
 
-  const { data: posts } = await supabase
+  const adminClient = createAdminClient();
+  const { data: posts } = await adminClient
     .from('blog_posts')
     .select('*')
     .order('created_at', { ascending: false });

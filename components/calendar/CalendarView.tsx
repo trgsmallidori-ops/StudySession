@@ -2,28 +2,36 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, CalendarDays, LayoutGrid } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, LayoutGrid, ClipboardList } from 'lucide-react';
 import { addMonths, subMonths, format, startOfWeek, addDays } from 'date-fns';
-import type { CalendarEvent } from '@/lib/database.types';
+import type { CalendarEvent, Class } from '@/lib/database.types';
+import { WEEK_STARTS_ON } from '@/lib/calendar/constants';
 import MonthView from './MonthView';
 import WeekView from './WeekView';
 import DayView from './DayView';
 import MiniCalendar from './MiniCalendar';
+import TestsPanel from './TestsPanel';
 
-export type CalendarViewType = 'month' | 'week' | 'day';
+export type CalendarViewType = 'month' | 'week' | 'day' | 'tests';
 
 interface CalendarViewProps {
   events: CalendarEvent[];
+  classes: Class[];
   onSelectEvent?: (event: CalendarEvent) => void;
   onSelectDate?: (date: Date) => void;
   onSelectSlot?: (date: Date) => void;
+  onGenerateStudyCourse?: (topic: string, fromTests?: boolean) => void;
+  canGenerateStudyCourse?: boolean;
 }
 
 export default function CalendarView({
   events,
+  classes,
   onSelectEvent,
   onSelectDate,
   onSelectSlot,
+  onGenerateStudyCourse,
+  canGenerateStudyCourse = false,
 }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarViewType>('month');
@@ -33,6 +41,7 @@ export default function CalendarView({
   };
 
   const goToPrev = () => {
+    if (view === 'tests') return;
     if (view === 'month') setCurrentDate((d) => subMonths(d, 1));
     else setCurrentDate((d) => {
       const next = new Date(d);
@@ -42,6 +51,7 @@ export default function CalendarView({
   };
 
   const goToNext = () => {
+    if (view === 'tests') return;
     if (view === 'month') setCurrentDate((d) => addMonths(d, 1));
     else setCurrentDate((d) => {
       const next = new Date(d);
@@ -51,17 +61,18 @@ export default function CalendarView({
   };
 
   const getHeaderTitle = () => {
+    if (view === 'tests') return 'Tests & Grades';
     if (view === 'month') return format(currentDate, 'MMMM yyyy');
     if (view === 'week') {
-      const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const start = startOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON });
       const end = addDays(start, 6);
-      return `${format(start, 'MMM d')} – ${format(end, 'MMM d, yyyy')}`;
+      return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
     }
     return format(currentDate, 'EEEE, MMMM d');
   };
 
   return (
-    <div className="flex gap-6 h-[600px]">
+    <div className="flex gap-6 flex-1 min-h-[calc(100dvh-200px)] h-full">
       {/* Sidebar with mini calendar */}
       <div className="hidden lg:block w-56 flex-shrink-0 relative z-10">
         <MiniCalendar
@@ -103,7 +114,7 @@ export default function CalendarView({
           </div>
 
           <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
-            {(['month', 'week', 'day'] as const).map((v) => (
+            {(['month', 'week', 'day', 'tests'] as const).map((v) => (
               <button
                 key={v}
                 type="button"
@@ -116,7 +127,9 @@ export default function CalendarView({
               >
                 {v === 'month' && <LayoutGrid size={16} className="inline mr-1.5 -mt-0.5" />}
                 {v === 'week' && <CalendarDays size={16} className="inline mr-1.5 -mt-0.5" />}
-                {v.charAt(0).toUpperCase() + v.slice(1)}
+                {v === 'day' && <CalendarDays size={16} className="inline mr-1.5 -mt-0.5" />}
+                {v === 'tests' && <ClipboardList size={16} className="inline mr-1.5 -mt-0.5" />}
+                {v === 'tests' ? 'Tests & Grades' : v.charAt(0).toUpperCase() + v.slice(1)}
               </button>
             ))}
           </div>
@@ -137,6 +150,7 @@ export default function CalendarView({
                 <MonthView
                   currentDate={currentDate}
                   events={events}
+                  classes={classes}
                   onSelectDate={(d) => {
                     setCurrentDate(d);
                     onSelectDate?.(d);
@@ -157,6 +171,7 @@ export default function CalendarView({
                 <WeekView
                   currentDate={currentDate}
                   events={events}
+                  classes={classes}
                   onSelectSlot={onSelectSlot}
                   onSelectEvent={onSelectEvent}
                 />
@@ -174,8 +189,27 @@ export default function CalendarView({
                 <DayView
                   currentDate={currentDate}
                   events={events}
+                  classes={classes}
                   onSelectSlot={onSelectSlot}
                   onSelectEvent={onSelectEvent}
+                />
+              </motion.div>
+            )}
+            {view === 'tests' && (
+              <motion.div
+                key="tests"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+                className="h-full"
+              >
+                <TestsPanel
+                  events={events}
+                  classes={classes}
+                  onGenerateStudyCourse={onGenerateStudyCourse ?? (() => {})}
+                  onSelectEvent={onSelectEvent}
+                  canGenerateStudyCourse={canGenerateStudyCourse}
                 />
               </motion.div>
             )}

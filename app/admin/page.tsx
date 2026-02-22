@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import AdminTestPaymentCard from '@/components/admin/AdminTestPaymentCard';
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -50,6 +51,8 @@ export default async function AdminPage() {
           <p className="text-3xl font-bold">{contactCount ?? 0}</p>
         </div>
       </div>
+
+      <AdminTestPaymentCard />
     </div>
   );
 }

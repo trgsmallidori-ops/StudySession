@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -6,9 +7,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <span className="text-lg font-bold text-accent-cyan tracking-wider">
-              CALEARNDER
-            </span>
+            <Image
+              src="/logo.png"
+              alt="StudySession"
+              width={160}
+              height={48}
+              className="h-9 w-auto mb-2 rounded-lg"
+            />
             <p className="mt-2 text-sm text-foreground/60">
               Gamified learning & calendar platform. Level up your productivity.
             </p>
@@ -40,7 +45,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-white/5 text-center text-sm text-foreground/50">
-          © {new Date().getFullYear()} Calearnder. Powered by Spaxio.
+          © {new Date().getFullYear()} StudySession. Powered by Spaxio.
         </div>
       </div>
     </footer>

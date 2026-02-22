@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import CreateCourseClient from './CreateCourseClient';
+import { isAdmin } from '@/lib/isAdmin';
 
 export default async function CreateCoursePage() {
   const supabase = await createClient();
@@ -14,7 +15,10 @@ export default async function CreateCoursePage() {
     .eq('id', user.id)
     .single();
 
-  const hasAccess = profile?.subscription_tier === 'champion' || profile?.subscription_tier === 'ultimate';
+  const hasAccess =
+    isAdmin(user) ||
+    profile?.subscription_tier === 'champion' ||
+    profile?.subscription_tier === 'ultimate';
   if (!hasAccess) redirect('/pricing?feature=learn');
 
   return <CreateCourseClient />;

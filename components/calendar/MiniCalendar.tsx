@@ -11,8 +11,7 @@ import {
   addMonths,
   subMonths,
 } from 'date-fns';
-
-const WEEKDAY_NAMES = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+import { WEEKDAY_MIN, WEEK_STARTS_ON } from '@/lib/calendar/constants';
 
 interface MiniCalendarProps {
   currentDate: Date;
@@ -27,7 +26,7 @@ export default function MiniCalendar({
 }: MiniCalendarProps) {
   const { weeks, monthStart } = useMemo(() => {
     const monthStartDate = startOfMonth(currentDate);
-    const calendarStart = startOfWeek(monthStartDate, { weekStartsOn: 1 });
+    const calendarStart = startOfWeek(monthStartDate, { weekStartsOn: WEEK_STARTS_ON });
 
     const weeks: Date[][] = [];
     let day = calendarStart;
@@ -71,7 +70,7 @@ export default function MiniCalendar({
       </div>
 
       <div className="grid grid-cols-7 gap-0.5 mb-2">
-        {WEEKDAY_NAMES.map((name, i) => (
+        {WEEKDAY_MIN.map((name, i) => (
           <div key={i} className="text-center text-[10px] text-foreground/50 font-medium">
             {name}
           </div>

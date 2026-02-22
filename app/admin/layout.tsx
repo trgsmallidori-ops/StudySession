@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
 import Link from 'next/link';
+import { isAdmin } from '@/lib/isAdmin';
 
 export default async function AdminLayout({
   children,
@@ -13,19 +13,13 @@ export default async function AdminLayout({
 
   if (!user) redirect('/login');
 
-  // Use service role to bypass RLS - ensures we get the actual is_admin value
-  try {
-    const adminClient = createAdminClient();
-    const { data: profile } = await adminClient
-      .from('users')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
+  const { data: profile } = await supabase
+    .from('users')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
 
-    if (!profile?.is_admin) redirect('/dashboard');
-  } catch {
-    redirect('/dashboard');
-  }
+  if (!isAdmin(user, profile)) redirect('/dashboard');
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

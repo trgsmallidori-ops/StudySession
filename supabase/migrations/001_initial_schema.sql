@@ -1,4 +1,4 @@
--- Calearnder Database Schema
+-- StudySession Database Schema
 -- Subscription tiers enum
 CREATE TYPE subscription_tier AS ENUM ('free', 'scholar', 'champion', 'ultimate');
 

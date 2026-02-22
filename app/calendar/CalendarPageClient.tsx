@@ -1,48 +1,48 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, Upload, X } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Plus, X, Filter, Trash2, Upload } from 'lucide-react';
 import CalendarView from '@/components/calendar/CalendarView';
 import ClassForm from '@/components/calendar/ClassForm';
+import GenerateCourseModal from '@/components/learn/GenerateCourseModal';
+import ChatBot from '@/components/calendar/ChatBot';
+import DeleteClassModal from '@/components/calendar/DeleteClassModal';
 import UploadOutline from '@/components/calendar/UploadOutline';
+import ParsedOutlineReviewModal from '@/components/calendar/ParsedOutlineReviewModal';
 import ExportButton from '@/components/calendar/ExportButton';
 import EventModal from '@/components/calendar/EventModal';
 import type { EventFormPayload } from '@/components/calendar/EventModal';
 import { CalendarEvent as DBCalendarEvent, Class } from '@/lib/database.types';
 import { addMonths, subMonths } from 'date-fns';
-import Link from 'next/link';
-
-interface ParsedOutline {
-  courseName: string;
-  tests: { date: string; description: string }[];
-  assignments: { date: string; description: string }[];
-  schedule: {
-    days: number[] | 'NEEDS_INPUT';
-    startTime: string | 'NEEDS_INPUT';
-    endTime: string | 'NEEDS_INPUT';
-  };
-}
 
 interface CalendarPageClientProps {
-  uploadsUsed: number;
-  uploadLimit: number;
+  uploadsUsed?: number;
+  uploadLimit?: number;
+  canUseAI?: boolean;
+  canGenerateStudyCourse?: boolean;
 }
 
-export default function CalendarPageClient({
-  uploadsUsed,
-  uploadLimit,
-}: CalendarPageClientProps) {
+export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999, canUseAI = false, canGenerateStudyCourse = false }: CalendarPageClientProps) {
   const [events, setEvents] = useState<DBCalendarEvent[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [showClassForm, setShowClassForm] = useState(false);
   const [editingClass, setEditingClass] = useState<Class | null>(null);
-  const [showUpload, setShowUpload] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<DBCalendarEvent | null>(null);
   const [eventModalDate, setEventModalDate] = useState<Date | null>(null);
   const [dateRange] = useState({ start: '', end: '' });
+  const [classFilter, setClassFilter] = useState<Set<string>>(new Set());
+  const [classToDelete, setClassToDelete] = useState<Class | null>(null);
+  const [calendarActionError, setCalendarActionError] = useState<string | null>(null);
+  const [clearingCalendar, setClearingCalendar] = useState(false);
+  const [showGenerateCourseModal, setShowGenerateCourseModal] = useState(false);
+  const [generateCourseTopic, setGenerateCourseTopic] = useState('');
+  const [generateCourseFromTests, setGenerateCourseFromTests] = useState(false);
+  const [parsedOutline, setParsedOutline] = useState<unknown | null>(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [importingOutline, setImportingOutline] = useState(false);
+  const [showUploadSection, setShowUploadSection] = useState(false);
 
   const fetchEvents = useCallback(async () => {
     const start = dateRange.start || subMonths(new Date(), 1).toISOString();
@@ -110,70 +110,35 @@ export default function CalendarPageClient({
     }
   };
 
-  const handleDeleteClass = async (id: string) => {
-    if (!confirm('Delete this class?')) return;
+  const handleDeleteClass = async () => {
+    if (!classToDelete) return;
+    const id = classToDelete.id;
     const res = await fetch(`/api/classes/${id}`, { method: 'DELETE' });
-    if (res.ok) await fetchClasses();
+    if (res.ok) {
+      setClassToDelete(null);
+      setClassFilter((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      await Promise.all([fetchClasses(), fetchEvents()]);
+    }
   };
 
-  const handleParsed = async (parsed: ParsedOutline) => {
-    let classId: string | null = null;
-    const color = '#00f0ff';
-
-    const days =
-      parsed.schedule.days === 'NEEDS_INPUT'
-        ? []
-        : Array.isArray(parsed.schedule.days)
-          ? parsed.schedule.days
-          : [];
-    const startTime =
-      parsed.schedule.startTime === 'NEEDS_INPUT' ? '' : parsed.schedule.startTime ?? '';
-    const endTime =
-      parsed.schedule.endTime === 'NEEDS_INPUT' ? '' : parsed.schedule.endTime ?? '';
-
-    const classRes = await fetch('/api/classes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: parsed.courseName,
-        color,
-        days_of_week: days,
-        start_time: startTime || undefined,
-        end_time: endTime || undefined,
-      }),
-    });
-    if (classRes.ok) {
-      const newClass = await classRes.json();
-      classId = newClass.id;
-      await fetchClasses();
+  const handleClearCalendar = async () => {
+    if (!confirm('Clear entire calendar? This deletes all classes and events.')) return;
+    setClearingCalendar(true);
+    const res = await fetch('/api/calendar/clear', { method: 'POST' });
+    if (res.ok) {
+      setClasses([]);
+      setEvents([]);
+      setClassFilter(new Set());
+      setCalendarActionError(null);
+    } else {
+      const err = await res.json().catch(() => null);
+      setCalendarActionError(err?.error ?? 'Failed to clear calendar.');
     }
-
-    const toCreate: { title: string; due_date: string; event_type: 'test' | 'assignment'; description?: string }[] = [];
-
-    for (const t of parsed.tests ?? []) {
-      if (t.date) toCreate.push({ title: t.description || 'Test', due_date: t.date, event_type: 'test', description: t.description });
-    }
-    for (const a of parsed.assignments ?? []) {
-      if (a.date) toCreate.push({ title: a.description || 'Assignment', due_date: a.date, event_type: 'assignment', description: a.description });
-    }
-
-    for (const ev of toCreate) {
-      await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          class_id: classId,
-          title: ev.title,
-          description: ev.description,
-          event_type: ev.event_type,
-          due_date: new Date(ev.due_date).toISOString(),
-          color,
-        }),
-      });
-    }
-
-    await fetchEvents();
-    setShowUpload(false);
+    setClearingCalendar(false);
   };
 
   const handleCreateEvent = async (data: EventFormPayload) => {
@@ -219,9 +184,51 @@ export default function CalendarPageClient({
     setShowEventModal(true);
   };
 
+  const filteredEvents = useMemo(() => {
+    if (classFilter.size === 0) return events;
+    return events.filter((e) => e.class_id && classFilter.has(e.class_id));
+  }, [events, classFilter]);
+
+  const toggleClassFilter = (classId: string) => {
+    setClassFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(classId)) next.delete(classId);
+      else next.add(classId);
+      return next;
+    });
+  };
+
+  const handleParsedOutline = (data: unknown) => {
+    setParsedOutline(data);
+    setShowReviewModal(true);
+  };
+
+  const handleImportOutline = async (reviewed: unknown) => {
+    setImportingOutline(true);
+    try {
+      const res = await fetch('/api/calendar/import-outline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewed),
+      });
+      if (res.ok) {
+        setShowReviewModal(false);
+        setParsedOutline(null);
+        await Promise.all([fetchEvents(), fetchClasses()]);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? 'Import failed');
+      }
+    } catch (error) {
+      setCalendarActionError(error instanceof Error ? error.message : 'Failed to import');
+    } finally {
+      setImportingOutline(false);
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <div className="flex flex-col flex-1 min-h-0 px-4 py-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 flex-shrink-0">
         <h1 className="text-3xl font-bold">Calendar</h1>
         <div className="flex flex-wrap gap-2">
           <ExportButton events={events} disabled={loading} />
@@ -236,14 +243,51 @@ export default function CalendarPageClient({
             Add Class
           </button>
           <button
-            onClick={() => setShowUpload(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 font-semibold"
+            onClick={handleClearCalendar}
+            disabled={clearingCalendar}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Upload size={18} />
-            Upload Outline
+            <Trash2 size={18} />
+            {clearingCalendar ? 'Clearing...' : 'Clear Calendar'}
           </button>
+          {canUseAI && (
+            <button
+              onClick={() => setShowUploadSection((s) => !s)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                showUploadSection
+                  ? 'bg-accent-cyan/30 text-accent-cyan border border-accent-cyan/50'
+                  : 'bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30'
+              }`}
+            >
+              <Upload size={18} />
+              Upload Syllabus
+            </button>
+          )}
         </div>
       </div>
+
+      {canUseAI && showUploadSection && (
+        <div className="glass rounded-xl p-6 mb-6 border border-accent-cyan/20">
+          <h3 className="text-lg font-semibold mb-4">Import from course outline</h3>
+          <UploadOutline
+            onParsed={handleParsedOutline}
+            uploadsUsed={uploadsUsed}
+            uploadLimit={uploadLimit}
+            onLimitReached={() => setShowUploadSection(false)}
+          />
+        </div>
+      )}
+
+      <ParsedOutlineReviewModal
+        isOpen={showReviewModal}
+        parsed={parsedOutline as Parameters<typeof ParsedOutlineReviewModal>[0]['parsed']}
+        isSubmitting={importingOutline}
+        onConfirm={handleImportOutline}
+        onCancel={() => {
+          setShowReviewModal(false);
+          setParsedOutline(null);
+        }}
+      />
 
       {showClassForm && (
         <div className="glass rounded-xl p-6 mb-8 border border-accent-cyan/20">
@@ -270,61 +314,50 @@ export default function CalendarPageClient({
         </div>
       )}
 
-      {showUpload && (
-        <div className="glass rounded-xl p-6 mb-8 border border-accent-pink/20">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Upload Course Outline</h2>
-            <button onClick={() => setShowUpload(false)}>
-              <X size={24} />
-            </button>
-          </div>
-          <UploadOutline
-            onParsed={handleParsed}
-            uploadsUsed={uploadsUsed}
-            uploadLimit={uploadLimit}
-            onLimitReached={() => setShowPaywall(true)}
-          />
-        </div>
-      )}
+      <DeleteClassModal
+        isOpen={!!classToDelete}
+        className={classToDelete?.name ?? ''}
+        onConfirm={handleDeleteClass}
+        onCancel={() => setClassToDelete(null)}
+      />
 
-      {showPaywall && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="glass rounded-2xl p-8 max-w-md border border-accent-cyan/20">
-            <h3 className="text-xl font-bold mb-4">Upload Limit Reached</h3>
-            <p className="text-foreground/80 mb-6">
-              Free accounts get 2 AI-powered outline uploads. Upgrade to Scholar or Ultimate for unlimited uploads.
-            </p>
-            <div className="flex gap-4">
-              <Link
-                href="/pricing"
-                className="flex-1 py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 text-center font-semibold"
-              >
-                View Plans
-              </Link>
-              <button
-                onClick={() => setShowPaywall(false)}
-                className="px-6 py-3 rounded-lg bg-white/5 border border-white/10"
-              >
-                Close
-              </button>
-            </div>
+      <div className="mb-4 flex-shrink-0">
+        {calendarActionError && (
+          <div className="mb-3 space-y-1">
+            <p className="text-sm text-red-400">{calendarActionError}</p>
           </div>
-        </div>
-      )}
-
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3">Your Classes</h3>
+        )}
+        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+          <Filter size={18} className="text-foreground/60" />
+          Your Classes
+          {classFilter.size > 0 && (
+            <span className="text-sm font-normal text-foreground/60">
+              (filtering by {classFilter.size} class{classFilter.size !== 1 ? 'es' : ''})
+            </span>
+          )}
+        </h3>
         <div className="flex flex-wrap gap-2">
           {classes.map((c) => (
             <div
               key={c.id}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg glass border border-white/10"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg glass border transition-colors ${
+                classFilter.size === 0 || classFilter.has(c.id)
+                  ? 'border-white/10'
+                  : 'border-white/5 opacity-50'
+              }`}
             >
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: c.color }}
-              />
-              <span>{c.name}</span>
+              <button
+                type="button"
+                onClick={() => toggleClassFilter(c.id)}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                title={classFilter.size === 0 || classFilter.has(c.id) ? 'Click to hide from calendar' : 'Click to show on calendar'}
+              >
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: c.color }}
+                />
+                <span>{c.name}</span>
+              </button>
               <button
                 onClick={() => {
                   setEditingClass(c);
@@ -335,7 +368,7 @@ export default function CalendarPageClient({
                 Edit
               </button>
               <button
-                onClick={() => handleDeleteClass(c.id)}
+                onClick={() => setClassToDelete(c)}
                 className="text-sm text-red-400 hover:underline"
               >
                 Delete
@@ -343,25 +376,68 @@ export default function CalendarPageClient({
             </div>
           ))}
           {classes.length === 0 && (
-            <p className="text-foreground/60">No classes yet. Add one or upload an outline.</p>
+            <p className="text-foreground/60">No classes yet. Add one to get started.</p>
           )}
         </div>
+        {classes.length > 0 && (
+          <p className="text-sm text-foreground/50 mt-2">
+            Click a class name to filter the calendar. Click again to toggle.
+            {classFilter.size > 0 && (
+              <button
+                type="button"
+                onClick={() => setClassFilter(new Set())}
+                className="ml-2 text-accent-cyan hover:underline"
+              >
+                Show all
+              </button>
+            )}
+          </p>
+        )}
       </div>
 
-      <div>
+      <div className="flex-1 min-h-[calc(100dvh-160px)] flex flex-col">
         {loading ? (
-          <div className="h-[600px] flex items-center justify-center glass rounded-xl border border-white/5">
+          <div className="flex-1 min-h-0 flex items-center justify-center glass rounded-xl border border-white/5">
             <div className="animate-pulse text-foreground/60">Loading calendar...</div>
           </div>
         ) : (
           <CalendarView
-            events={events}
+            events={filteredEvents}
+            classes={classes}
             onSelectEvent={(e) => openEventModal(e)}
             onSelectDate={(d) => openEventModal(null, d)}
             onSelectSlot={(d) => openEventModal(null, d)}
+            onGenerateStudyCourse={(topic, fromTests) => {
+              setGenerateCourseTopic(topic);
+              setGenerateCourseFromTests(!!fromTests);
+              setShowGenerateCourseModal(true);
+            }}
+            canGenerateStudyCourse={canGenerateStudyCourse}
           />
         )}
       </div>
+
+      <GenerateCourseModal
+        isOpen={showGenerateCourseModal}
+        onClose={() => {
+          setShowGenerateCourseModal(false);
+          setGenerateCourseTopic('');
+          setGenerateCourseFromTests(false);
+        }}
+        initialTopic={generateCourseTopic}
+        fromTests={generateCourseFromTests}
+      />
+
+      {canUseAI && (
+        <ChatBot
+          onGenerateStudyCourse={(topic) => {
+            setGenerateCourseTopic(topic);
+            setGenerateCourseFromTests(false);
+            setShowGenerateCourseModal(true);
+          }}
+          onCalendarUpdated={fetchEvents}
+        />
+      )}
 
       <EventModal
         key={editingEvent?.id ?? eventModalDate?.toISOString() ?? 'new'}

@@ -1,4 +1,4 @@
-# Calearnder - Gamified Learning & Calendar Platform
+# StudySession - Gamified Learning & Calendar Platform
 
 A Next.js 14 platform combining AI-powered calendar parsing, gamified courses with XP & achievements, and monthly skill-based competitions.
 
@@ -55,14 +55,11 @@ Open [http://localhost:3000](http://localhost:3000).
 2. Add all environment variables from `.env.example`
 3. Set up Stripe webhook: `https://your-domain.com/api/stripe/webhook`
 4. Cron: Race winner calculation runs on 1st of each month at 2am
-5. **Make yourself admin:** After signing up, run this in the Supabase SQL Editor:
-   ```sql
-   UPDATE users SET is_admin = true WHERE email = 'your@email.com';
-   ```
+5. **Make yourself admin:** Add your email to `ADMIN_EMAILS` in `.env` (comma-separated, e.g. `ADMIN_EMAILS=admin@example.com`).
 
 ## Subscription Tiers
 
 - **Scholar** ($30/year) - AI calendar parsing, unlimited uploads
 - **Champion** ($10/month) - Learn section, XP system, race eligibility
 - **Ultimate** ($11/month) - All features, best value
-# Calearnder
+# StudySession

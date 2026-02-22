@@ -14,33 +14,46 @@ export default function Navbar() {
   const supabase = createClient();
 
   useEffect(() => {
+    let mounted = true;
+
     const load = async () => {
       const { data: { user: u } } = await supabase.auth.getUser();
-      setUser(u ?? null);
-      if (u) {
-        try {
-          const res = await fetch('/api/user/admin-status');
-          if (res.ok) {
-            const { is_admin } = await res.json();
-            setIsAdmin(is_admin ?? false);
+      if (mounted) {
+        setUser(u ?? null);
+        if (u) {
+          try {
+            const res = await fetch('/api/user/admin-status');
+            if (res.ok) {
+              const { is_admin } = await res.json();
+              setIsAdmin(is_admin ?? false);
+            }
+          } catch {
+            setIsAdmin(false);
           }
-        } catch {
-          setIsAdmin(false);
         }
       }
     };
     load();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetch('/api/user/admin-status')
-          .then((r) => r.ok ? r.json() : { is_admin: false })
-          .then((data) => setIsAdmin(data?.is_admin ?? false));
-      } else {
-        setIsAdmin(false);
-      }
+      // Defer state updates to avoid "state update on unmounted component" during HMR/navigation
+      queueMicrotask(() => {
+        if (!mounted) return;
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetch('/api/user/admin-status')
+            .then((r) => r.ok ? r.json() : { is_admin: false })
+            .then((data) => mounted && setIsAdmin(data?.is_admin ?? false));
+        } else {
+          setIsAdmin(false);
+        }
+      });
     });
-    return () => subscription.unsubscribe();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase.auth]);
 
   const handleSignOut = async () => {
@@ -62,7 +75,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold tracking-wider text-accent-cyan">
-              CALEARNDER
+              STUDYSESSION
             </span>
           </Link>
 

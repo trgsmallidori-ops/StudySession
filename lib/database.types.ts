@@ -2,6 +2,7 @@ export type SubscriptionTier = 'free' | 'scholar' | 'champion' | 'ultimate';
 export type EventType = 'test' | 'assignment' | 'lecture' | 'other';
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 export type RaceStatus = 'upcoming' | 'active' | 'completed';
+export type RaceType = 'xp' | 'typing';
 export type ContactStatus = 'new' | 'responded' | 'archived';
 
 export interface User {
@@ -37,6 +38,7 @@ export interface CalendarEvent {
   event_type: EventType;
   due_date: string;
   color: string;
+  weight?: number | null;
   created_at: string;
 }
 
@@ -92,6 +94,9 @@ export interface RacePeriod {
   start_date: string;
   end_date: string;
   status: RaceStatus;
+  race_type: RaceType;
+  title: string | null;
+  description: string | null;
   participant_count: number;
   prize_pool_1st: number;
   prize_pool_2nd: number;
@@ -105,7 +110,19 @@ export interface RaceEntry {
   user_id: string;
   opted_in_at: string;
   xp_earned_during_race: number;
+  typing_speed_wpm: number | null;
+  typing_accuracy: number | null;
+  is_final_submission: boolean;
   final_rank: number | null;
   payout_amount: number | null;
   paid_out: boolean;
+}
+
+export interface RaceAnnouncement {
+  id: string;
+  race_period_id: string | null;
+  title: string;
+  message: string;
+  sent_to_count: number;
+  created_at: string;
 }

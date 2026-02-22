@@ -9,6 +9,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,10 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (!agreeToTerms) {
+      setError('You must agree to the Terms & Conditions and Privacy Policy to create an account.');
+      return;
+    }
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
@@ -39,6 +44,10 @@ export default function SignupPage() {
 
   const handleOAuth = async (provider: 'google' | 'github') => {
     setError(null);
+    if (!agreeToTerms) {
+      setError('You must agree to the Terms & Conditions and Privacy Policy to create an account.');
+      return;
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -103,6 +112,24 @@ export default function SignupPage() {
               className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
             />
           </div>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreeToTerms}
+              onChange={(e) => setAgreeToTerms(e.target.checked)}
+              className="mt-1 rounded border-white/20 bg-background/50 text-accent-cyan focus:ring-accent-cyan"
+            />
+            <span className="text-sm text-foreground/80">
+              I agree to the{' '}
+              <Link href="/terms" className="text-accent-cyan hover:underline" target="_blank" rel="noopener noreferrer">
+                Terms & Conditions
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-accent-cyan hover:underline" target="_blank" rel="noopener noreferrer">
+                Privacy Policy
+              </Link>
+            </span>
+          </label>
           {error && (
             <p className="text-red-400 text-sm">{error}</p>
           )}

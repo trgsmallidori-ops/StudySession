@@ -5,20 +5,37 @@ import { Upload, X, Loader2 } from 'lucide-react';
 
 interface ParsedOutline {
   courseName: string;
+  events?: {
+    date: string;
+    time?: string;
+    description: string;
+    type: 'test' | 'assignment' | 'lecture' | 'other' | 'quiz' | 'reading' | 'exam' | 'final' | 'midterm' | 'lab' | 'project' | 'homework';
+    category?: 'quiz' | 'reading' | 'exam' | 'final' | 'midterm' | 'assignment' | 'lecture' | 'lab' | 'other';
+    confidence: number;
+    needsReview: boolean;
+    sourceSnippet: string;
+  }[];
   tests: { date: string; description: string }[];
   assignments: { date: string; description: string }[];
   schedule: {
     days: number[] | 'NEEDS_INPUT';
     startTime: string | 'NEEDS_INPUT';
     endTime: string | 'NEEDS_INPUT';
+    confidence?: number;
+    needsReview?: boolean;
+  };
+  meta?: {
+    parserVersion?: string;
+    warnings?: string[];
+    extractedSections?: string[];
   };
 }
 
 interface UploadOutlineProps {
   onParsed: (data: ParsedOutline) => void;
-  uploadsUsed: number;
-  uploadLimit: number;
-  onLimitReached: () => void;
+  uploadsUsed?: number;
+  uploadLimit?: number;
+  onLimitReached?: () => void;
 }
 
 export default function UploadOutline({
@@ -72,7 +89,7 @@ export default function UploadOutline({
 
       if (!res.ok) {
         if (data.limitReached) {
-          onLimitReached();
+          onLimitReached?.();
         } else {
           setError(data.error ?? 'Failed to parse');
         }
@@ -102,11 +119,13 @@ export default function UploadOutline({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-sm text-foreground/60">
-        <span>
-          {uploadsUsed} / {uploadLimit} uploads used
-        </span>
-      </div>
+      {typeof uploadsUsed === 'number' && typeof uploadLimit === 'number' ? (
+        <div className="flex items-center justify-between text-sm text-foreground/60">
+          <span>
+            {uploadsUsed} / {uploadLimit} uploads used
+          </span>
+        </div>
+      ) : null}
 
       <div
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}

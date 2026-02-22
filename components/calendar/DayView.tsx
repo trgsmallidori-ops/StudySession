@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { format, setHours, setMinutes, isSameDay } from 'date-fns';
-import type { CalendarEvent } from '@/lib/database.types';
+import type { CalendarEvent, Class } from '@/lib/database.types';
 import { FileText, ClipboardList, BookOpen, Circle } from 'lucide-react';
 
 const EVENT_ICONS = {
@@ -18,6 +18,7 @@ const HOURS = Array.from({ length: 17 }, (_, i) => i + 7); // 7am to 11pm
 interface DayViewProps {
   currentDate: Date;
   events: CalendarEvent[];
+  classes: Class[];
   onSelectSlot?: (date: Date) => void;
   onSelectEvent?: (event: CalendarEvent) => void;
 }
@@ -25,6 +26,7 @@ interface DayViewProps {
 export default function DayView({
   currentDate,
   events,
+  classes,
   onSelectSlot,
   onSelectEvent,
 }: DayViewProps) {
@@ -74,6 +76,7 @@ export default function DayView({
             {dayEvents.map((event) => {
               const topPercent = getEventPosition(event);
               const Icon = EVENT_ICONS[event.event_type] ?? Circle;
+              const classLabel = event.class_id ? classes.find((c) => c.id === event.class_id)?.name : null;
               return (
                 <motion.button
                   key={event.id}
@@ -96,8 +99,9 @@ export default function DayView({
                     <Icon size={16} className="flex-shrink-0 text-foreground/60" />
                     <span className="font-medium truncate">{event.title}</span>
                   </div>
-                  <div className="text-sm text-foreground/60 mt-0.5">
-                    {format(new Date(event.due_date), 'h:mm a')}
+                  <div className="text-sm text-foreground/60 mt-0.5 flex items-center gap-2">
+                    {classLabel && <span>{classLabel}</span>}
+                    <span>{format(new Date(event.due_date), 'h:mm a')}</span>
                   </div>
                   {event.description && (
                     <p className="text-xs text-foreground/70 mt-1 line-clamp-2">

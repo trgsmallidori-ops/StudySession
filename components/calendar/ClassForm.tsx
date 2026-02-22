@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { WEEKDAY_OPTIONS, sortDaysByWeekStart } from '@/lib/calendar/constants';
 
 const classSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -14,16 +15,6 @@ const classSchema = z.object({
 });
 
 type ClassFormData = z.infer<typeof classSchema>;
-
-const DAYS = [
-  { value: 0, label: 'Sun' },
-  { value: 1, label: 'Mon' },
-  { value: 2, label: 'Tue' },
-  { value: 3, label: 'Wed' },
-  { value: 4, label: 'Thu' },
-  { value: 5, label: 'Fri' },
-  { value: 6, label: 'Sat' },
-];
 
 const COLORS = [
   '#00f0ff', '#ff006e', '#9d4edd', '#ffbe0b', '#fb5607',
@@ -63,7 +54,7 @@ export default function ClassForm({ initialData, onSubmit, onCancel }: ClassForm
     const current = daysOfWeek as number[];
     const next = current.includes(day)
       ? current.filter((d) => d !== day)
-      : [...current, day].sort((a, b) => a - b);
+      : sortDaysByWeekStart([...current, day]);
     setValue('days_of_week', next);
   };
 
@@ -115,7 +106,7 @@ export default function ClassForm({ initialData, onSubmit, onCancel }: ClassForm
       <div>
         <label className="block text-sm text-foreground/80 mb-2">Days of Week</label>
         <div className="flex gap-2">
-          {DAYS.map(({ value, label }) => (
+          {WEEKDAY_OPTIONS.map(({ value, label }) => (
             <button
               key={value}
               type="button"

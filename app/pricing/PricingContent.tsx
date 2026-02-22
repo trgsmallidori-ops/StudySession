@@ -3,12 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Check, Calendar, BookOpen, Trophy } from 'lucide-react';
+import { Check, Calendar, BookOpen, Trophy, Lock } from 'lucide-react';
 
 export default function PricingContent() {
   const [loading, setLoading] = useState<string | null>(null);
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const searchParams = useSearchParams();
   const feature = searchParams.get('feature');
+  const authRequired = searchParams.get('auth') === 'required';
+
+  useEffect(() => {
+    fetch('/api/user/subscription')
+      .then((r) => r.json())
+      .then((d) => setAuthenticated(d.authenticated ?? false))
+      .catch(() => setAuthenticated(false));
+  }, []);
 
   useEffect(() => {
     if (feature === 'learn' || feature === 'race') {
@@ -34,6 +43,22 @@ export default function PricingContent() {
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_SCHOLAR,
     },
     {
+      name: 'Ultimate',
+      price: '$11',
+      period: '/month',
+      description: 'Everything. Best value.',
+      features: [
+        'Everything in Champion',
+        'All Scholar features',
+        'Best value bundle',
+      ],
+      icon: Trophy,
+      color: 'accent-purple',
+      cta: 'Get Ultimate',
+      popular: true,
+      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE,
+    },
+    {
       name: 'Champion',
       price: '$10',
       period: '/month',
@@ -48,23 +73,7 @@ export default function PricingContent() {
       icon: BookOpen,
       color: 'accent-pink',
       cta: 'Get Champion',
-      popular: true,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_CHAMPION,
-    },
-    {
-      name: 'Ultimate',
-      price: '$11',
-      period: '/month',
-      description: 'Everything. Best value.',
-      features: [
-        'Everything in Champion',
-        'All Scholar features',
-        'Best value bundle',
-      ],
-      icon: Trophy,
-      color: 'accent-purple',
-      cta: 'Get Ultimate',
-      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE,
     },
   ];
 
@@ -77,17 +86,51 @@ export default function PricingContent() {
         </p>
       </div>
 
+      {feature === 'learn' && (
+        <div className="mb-10 p-5 rounded-xl border border-accent-pink/40 bg-accent-pink/10 text-center max-w-2xl mx-auto">
+          {authRequired ? (
+            <>
+              <p className="font-semibold text-accent-pink mb-1">Sign in to get started</p>
+              <p className="text-foreground/70 text-sm mb-4">
+                You need an account before purchasing a plan. Create one for free — it only takes a second.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Link
+                  href="/login"
+                  className="px-5 py-2 rounded-lg border border-white/20 hover:bg-white/5 text-sm font-semibold"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="px-5 py-2 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 text-sm font-semibold"
+                >
+                  Create Account
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="font-semibold text-accent-pink mb-1">Unlock Learn &amp; XP</p>
+              <p className="text-foreground/70 text-sm">
+                The <strong>Champion</strong> or <strong>Ultimate</strong> plan gives you full access to the Learn section, course creation, XP, achievements, and monthly races.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+
       <div id="plans" className="grid md:grid-cols-3 gap-8">
         {plans.map((plan) => (
           <div
             key={plan.name}
             className={`
               glass rounded-2xl p-8 border relative
-              ${plan.popular ? 'border-accent-pink/50 shadow-neon-pink' : 'border-white/10'}
+              ${plan.popular ? 'border-accent-purple/50 shadow-neon-purple' : 'border-white/10'}
             `}
           >
             {plan.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-accent-pink/20 text-accent-pink text-sm font-semibold">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-accent-purple/20 text-accent-purple text-sm font-semibold">
                 Most Popular
               </div>
             )}
@@ -108,7 +151,21 @@ export default function PricingContent() {
                 </li>
               ))}
             </ul>
-            {plan.priceId ? (
+            {authenticated === false ? (
+              <Link
+                href={`/signup?redirect=/pricing${feature ? `?feature=${feature}` : ''}`}
+                className={`
+                  block w-full py-3 rounded-lg text-center font-semibold transition-colors flex items-center justify-center gap-2
+                  ${plan.popular
+                    ? 'bg-accent-purple/20 text-accent-purple border-2 border-accent-purple/50 hover:bg-accent-purple/30'
+                    : 'bg-white/5 border border-white/10 hover:border-white/20'
+                  }
+                `}
+              >
+                <Lock size={15} />
+                Sign in to purchase
+              </Link>
+            ) : plan.priceId ? (
               <button
                 onClick={async () => {
                   setLoading(plan.name);
@@ -128,7 +185,7 @@ export default function PricingContent() {
                 className={`
                   block w-full py-3 rounded-lg text-center font-semibold transition-colors disabled:opacity-50
                   ${plan.popular
-                    ? 'bg-accent-pink/20 text-accent-pink border-2 border-accent-pink/50 hover:bg-accent-pink/30'
+                    ? 'bg-accent-purple/20 text-accent-purple border-2 border-accent-purple/50 hover:bg-accent-purple/30'
                     : 'bg-white/5 border border-white/10 hover:border-white/20'
                   }
                 `}
@@ -141,7 +198,7 @@ export default function PricingContent() {
                 className={`
                   block w-full py-3 rounded-lg text-center font-semibold transition-colors
                   ${plan.popular
-                    ? 'bg-accent-pink/20 text-accent-pink border-2 border-accent-pink/50 hover:bg-accent-pink/30'
+                    ? 'bg-accent-purple/20 text-accent-purple border-2 border-accent-purple/50 hover:bg-accent-purple/30'
                     : 'bg-white/5 border border-white/10 hover:border-white/20'
                   }
                 `}

@@ -1,160 +1,115 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { RacePeriod, RaceEntry } from '@/lib/database.types';
-import { Trophy, Users, Zap, Clock } from 'lucide-react';
+import { Trophy, Zap } from 'lucide-react';
 import { format } from 'date-fns';
+import type { RacePeriod, RaceEntry, RaceAnnouncement } from '@/lib/database.types';
+import XpRaceView from '@/components/race/XpRaceView';
+import TypingRaceView from '@/components/race/TypingRaceView';
 
 interface RacePageClientProps {
-  activePeriod: RacePeriod | null | undefined;
+  activePeriod: RacePeriod | null;
+  upcomingPeriod: RacePeriod | null;
+  pastPeriods: RacePeriod[];
   myEntry: RaceEntry | null;
+  latestAnnouncement: RaceAnnouncement | null;
 }
 
 export default function RacePageClient({
   activePeriod,
-  myEntry: initialMyEntry,
+  upcomingPeriod,
+  pastPeriods,
+  myEntry,
+  latestAnnouncement,
 }: RacePageClientProps) {
-  const [leaderboard, setLeaderboard] = useState<{ rank: number; user_id: string; display_name: string; xp_earned_during_race: number; opted_in_at: string }[]>([]);
-  const [myEntry, setMyEntry] = useState(initialMyEntry);
-  const [optingIn, setOptingIn] = useState(false);
-
-  useEffect(() => {
-    if (activePeriod?.id) {
-      fetch(`/api/race/leaderboard?race_period_id=${activePeriod.id}`)
-        .then((r) => r.json())
-        .then(setLeaderboard)
-        .catch(() => {});
-    }
-  }, [activePeriod?.id]);
-
-  const handleOptIn = async () => {
-    if (!activePeriod) return;
-    setOptingIn(true);
-    const res = await fetch('/api/race/opt-in', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ race_period_id: activePeriod.id }),
-    });
-    setOptingIn(false);
-    if (res.ok) {
-      setMyEntry({} as RaceEntry);
-      const data = await res.json();
-      setMyEntry(data);
-      fetch(`/api/race/leaderboard?race_period_id=${activePeriod.id}`)
-        .then((r) => r.json())
-        .then(setLeaderboard);
-    }
-  };
-
-  const myRank = myEntry
-    ? (leaderboard.find((e) => e.user_id === myEntry.user_id)?.rank ?? 0)
-    : 0;
-
-  const participantCount = leaderboard.length;
+  const raceType = activePeriod?.race_type ?? 'xp';
+  const typeIcon = raceType === 'typing' ? Zap : Trophy;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
           <Trophy className="text-accent-purple" size={48} />
-          Monthly Productivity Challenge
+          Race
         </h1>
         <p className="text-foreground/70 text-lg mb-4">
-          100% skill-based. Free for Champion & Ultimate subscribers.
+          Compete for cash prizes. Champion & Ultimate subscribers only.
         </p>
-        <Link
-          href="/race/rules"
-          className="text-accent-cyan hover:underline"
-        >
+        <Link href="/race/rules" className="text-accent-cyan hover:underline">
           Official Rules →
         </Link>
       </div>
 
-      {activePeriod && (
-        <div className="glass rounded-2xl p-8 border border-accent-purple/20 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">
-                {format(new Date(activePeriod.start_date), 'MMMM yyyy')} Challenge
-              </h2>
-              <div className="flex items-center gap-4 text-foreground/60">
-                <span className="flex items-center gap-1">
-                  <Clock size={16} />
-                  {format(new Date(activePeriod.start_date), 'MMM d')} - {format(new Date(activePeriod.end_date), 'MMM d')}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Users size={16} />
-                  {participantCount} competitors
-                </span>
-              </div>
-            </div>
-            <div className="bg-accent-purple/10 rounded-xl p-6 border border-accent-purple/20">
-              <p className="text-sm text-foreground/60 mb-2">This Month&apos;s Prizes (Funded by Spaxio)</p>
-              <div className="flex gap-6">
-                <div>
-                  <p className="text-2xl font-bold text-accent-purple">1st</p>
-                  <p className="text-lg">${activePeriod.prize_pool_1st}</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-accent-purple">2nd</p>
-                  <p className="text-lg">${activePeriod.prize_pool_2nd}</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-accent-purple">3rd</p>
-                  <p className="text-lg">${activePeriod.prize_pool_3rd}</p>
-                </div>
-              </div>
-            </div>
+      {latestAnnouncement && (
+        <div className="glass rounded-xl p-4 mb-8 border border-accent-cyan/20">
+          <p className="text-sm font-semibold text-accent-cyan mb-1">{latestAnnouncement.title}</p>
+          <p className="text-sm text-foreground/80 whitespace-pre-wrap">{latestAnnouncement.message}</p>
+        </div>
+      )}
+
+      {activePeriod ? (
+        <>
+          <div className="flex items-center gap-2 mb-6">
+            <span className="text-xs px-2 py-1 rounded-full bg-accent-purple/20 text-accent-purple border border-accent-purple/40 flex items-center gap-1 w-fit">
+              {typeIcon === Zap ? <Zap size={12} /> : <Trophy size={12} />}
+              {raceType === 'typing' ? 'Typing Speed' : 'XP'}
+            </span>
           </div>
 
-          {!myEntry && activePeriod.status === 'active' && (
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <button
-                onClick={handleOptIn}
-                disabled={optingIn}
-                className="w-full md:w-auto px-8 py-4 rounded-lg bg-accent-purple/20 text-accent-purple border-2 border-accent-purple/50 hover:bg-accent-purple/30 font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <Zap size={20} />
-                {optingIn ? 'Joining...' : "Join This Month's Productivity Challenge"}
-              </button>
-            </div>
+          {raceType === 'xp' && (
+            <XpRaceView activePeriod={activePeriod} myEntry={myEntry} />
           )}
-
-          {myEntry && (
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <p className="text-accent-purple font-semibold">
-                You&apos;re in! Your Rank: #{myRank || '-'} • XP: {myEntry.xp_earned_during_race ?? 0}
+          {raceType === 'typing' && (
+            <TypingRaceView activePeriod={activePeriod} myEntry={myEntry} />
+          )}
+        </>
+      ) : (
+        <div className="glass rounded-2xl p-12 border border-white/5 text-center mb-8">
+          {upcomingPeriod ? (
+            <>
+              <h2 className="text-xl font-bold mb-2">Upcoming Race</h2>
+              <p className="text-foreground/70 mb-4">
+                {upcomingPeriod.title ||
+                  `${format(new Date(upcomingPeriod.start_date), 'MMMM yyyy')} ${upcomingPeriod.race_type === 'typing' ? 'Typing' : 'XP'} Challenge`}
               </p>
-            </div>
+              <p className="text-sm text-foreground/60">
+                {format(new Date(upcomingPeriod.start_date), 'MMM d')} –{' '}
+                {format(new Date(upcomingPeriod.end_date), 'MMM d')}
+              </p>
+              <p className="text-sm text-foreground/60 mt-2">
+                Prizes: 1st ${upcomingPeriod.prize_pool_1st} • 2nd ${upcomingPeriod.prize_pool_2nd} • 3rd ${upcomingPeriod.prize_pool_3rd}
+              </p>
+            </>
+          ) : (
+            <p className="text-foreground/60">No active race. Check back soon!</p>
           )}
         </div>
       )}
 
-      <div className="glass rounded-2xl p-6 border border-white/5">
-        <h3 className="text-xl font-semibold mb-6">Leaderboard</h3>
-        <div className="space-y-3">
-          {leaderboard.slice(0, 10).map((entry, i) => (
-            <div
-              key={i}
-              className={`flex items-center gap-4 p-4 rounded-lg ${
-                i < 3 ? 'bg-accent-purple/10 border border-accent-purple/20' : 'bg-white/5'
-              }`}
-            >
-              <span className="w-8 font-bold text-foreground/60">#{entry.rank}</span>
-              <span className="flex-1 font-mono">{entry.display_name}</span>
-              <span className="text-accent-purple font-semibold">{entry.xp_earned_during_race} XP</span>
-            </div>
-          ))}
-        </div>
-        {leaderboard.length === 0 && (
-          <p className="text-center text-foreground/60 py-8">No participants yet. Be the first!</p>
-        )}
-      </div>
-
-      {!activePeriod && (
-        <div className="text-center py-16 text-foreground/60">
-          No active race period. Check back soon!
+      {pastPeriods.length > 0 && (
+        <div className="mt-12">
+          <h3 className="text-xl font-semibold mb-4">Past Races</h3>
+          <div className="space-y-3">
+            {pastPeriods.map((p) => (
+              <div
+                key={p.id}
+                className="glass rounded-xl p-4 border border-white/5 flex flex-wrap items-center justify-between gap-4"
+              >
+                <div>
+                  <p className="font-semibold">
+                    {p.title || `${format(new Date(p.start_date), 'MMMM yyyy')} ${p.race_type === 'typing' ? 'Typing' : 'XP'}`}
+                  </p>
+                  <p className="text-sm text-foreground/60">
+                    {format(new Date(p.start_date), 'MMM d')} – {format(new Date(p.end_date), 'MMM d')} • {p.participant_count} participants
+                  </p>
+                </div>
+                <div className="text-sm">
+                  <span className="text-foreground/60">Prizes: </span>
+                  1st ${p.prize_pool_1st} • 2nd ${p.prize_pool_2nd} • 3rd ${p.prize_pool_3rd}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

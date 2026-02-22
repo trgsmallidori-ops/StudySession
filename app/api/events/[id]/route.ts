@@ -19,6 +19,7 @@ export async function PATCH(
   if (body.event_type !== undefined) updates.event_type = body.event_type;
   if (body.due_date !== undefined) updates.due_date = body.due_date;
   if (body.color !== undefined) updates.color = body.color;
+  if (body.weight !== undefined) updates.weight = body.weight;
 
   const { data, error } = await supabase
     .from('calendar_events')

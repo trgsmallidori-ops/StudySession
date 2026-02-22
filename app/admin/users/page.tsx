@@ -1,13 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { isAdmin } from '@/lib/isAdmin';
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !isAdmin(user)) return null; // Layout already redirects, but guard for safety
 
-  const { data: users } = await supabase
+  const adminClient = createAdminClient();
+  const { data: users } = await adminClient
     .from('users')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(100);
+
+  const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map((e) => e.trim().toLowerCase());
 
   return (
     <div>
@@ -30,7 +37,9 @@ export default async function AdminUsersPage() {
                 <td className="p-4">{u.full_name ?? '-'}</td>
                 <td className="p-4 capitalize">{u.subscription_tier}</td>
                 <td className="p-4">{u.total_xp}</td>
-                <td className="p-4">{u.is_admin ? 'Yes' : 'No'}</td>
+                <td className="p-4">
+                  {adminEmails.includes((u.email ?? '').toLowerCase()) ? 'Yes (env)' : u.is_admin ? 'Yes' : 'No'}
+                </td>
               </tr>
             ))}
           </tbody>

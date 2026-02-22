@@ -41,6 +41,15 @@ export async function DELETE(
 
   const { id } = await params;
 
+  // Delete all events belonging to this class first
+  const { error: eventsError } = await supabase
+    .from('calendar_events')
+    .delete()
+    .eq('class_id', id)
+    .eq('user_id', user.id);
+
+  if (eventsError) return NextResponse.json({ error: eventsError.message }, { status: 500 });
+
   const { error } = await supabase
     .from('classes')
     .delete()

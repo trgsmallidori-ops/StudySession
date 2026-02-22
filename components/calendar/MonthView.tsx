@@ -13,8 +13,9 @@ import {
   isToday,
   format,
 } from 'date-fns';
-import type { CalendarEvent } from '@/lib/database.types';
+import type { CalendarEvent, Class } from '@/lib/database.types';
 import { FileText, ClipboardList, BookOpen, Circle } from 'lucide-react';
+import { WEEKDAY_SHORT, WEEK_STARTS_ON } from '@/lib/calendar/constants';
 
 const EVENT_ICONS = {
   test: FileText,
@@ -23,11 +24,10 @@ const EVENT_ICONS = {
   other: Circle,
 };
 
-const WEEKDAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
 interface MonthViewProps {
   currentDate: Date;
   events: CalendarEvent[];
+  classes: Class[];
   onSelectDate?: (date: Date) => void;
   onSelectEvent?: (event: CalendarEvent) => void;
 }
@@ -35,14 +35,15 @@ interface MonthViewProps {
 export default function MonthView({
   currentDate,
   events,
+  classes,
   onSelectDate,
   onSelectEvent,
 }: MonthViewProps) {
   const { weeks, monthStart } = useMemo(() => {
     const monthStartDate = startOfMonth(currentDate);
     const monthEndDate = endOfMonth(currentDate);
-    const calendarStart = startOfWeek(monthStartDate, { weekStartsOn: 1 });
-    const calendarEnd = endOfWeek(monthEndDate, { weekStartsOn: 1 });
+    const calendarStart = startOfWeek(monthStartDate, { weekStartsOn: WEEK_STARTS_ON });
+    const calendarEnd = endOfWeek(monthEndDate, { weekStartsOn: WEEK_STARTS_ON });
 
     const weeks: Date[][] = [];
     let day = calendarStart;
@@ -66,7 +67,7 @@ export default function MonthView({
     <div className="flex flex-col h-full">
       {/* Weekday headers */}
       <div className="grid grid-cols-7 border-b border-white/5 mb-2">
-        {WEEKDAY_NAMES.map((name) => (
+        {WEEKDAY_SHORT.map((name) => (
           <div
             key={name}
             className="py-2 text-center text-sm font-medium text-foreground/60"
@@ -112,6 +113,7 @@ export default function MonthView({
                 <div className="flex-1 overflow-y-auto p-1 space-y-1">
                   {dayEvents.slice(0, 3).map((event) => {
                     const Icon = EVENT_ICONS[event.event_type] ?? Circle;
+                    const classLabel = event.class_id ? classes.find((c) => c.id === event.class_id)?.name : null;
                     return (
                       <motion.button
                         key={event.id}
@@ -122,12 +124,17 @@ export default function MonthView({
                           e.stopPropagation();
                           onSelectEvent?.(event);
                         }}
-                        className="w-full text-left px-2 py-1 rounded text-xs truncate flex items-center gap-1.5
+                        className="w-full text-left px-2 py-1 rounded text-xs truncate flex flex-col gap-0.5
                           hover:bg-white/10 transition-colors border-l-2"
                         style={{ borderLeftColor: event.color }}
                       >
-                        <Icon size={12} className="flex-shrink-0 text-foreground/60" />
-                        <span className="truncate">{event.title}</span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Icon size={12} className="flex-shrink-0 text-foreground/60" />
+                          <span className="truncate">{event.title}</span>
+                        </div>
+                        {classLabel && (
+                          <span className="text-[10px] text-foreground/50 truncate pl-3.5">{classLabel}</span>
+                        )}
                       </motion.button>
                     );
                   })}

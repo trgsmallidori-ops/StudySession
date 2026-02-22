@@ -40,7 +40,7 @@ export function generateIcalContent(events: CalendarEvent[]): string {
   const lines: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Planearn//Calendar//EN',
+    'PRODID:-//StudySession//Calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
   ];
@@ -50,7 +50,7 @@ export function generateIcalContent(events: CalendarEvent[]): string {
     const endDate = new Date(startDate);
     endDate.setHours(endDate.getHours() + 1);
 
-    const uid = `${event.id}@planearn.com`;
+    const uid = `${event.id}@studysession.com`;
     const summary = escapeIcalText(event.title);
     const description = event.description
       ? escapeIcalText(event.description)
@@ -87,7 +87,7 @@ export function downloadIcalFile(events: CalendarEvent[], filename?: string): vo
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = filename ?? `planearn-calendar-${new Date().toISOString().slice(0, 10)}.ics`;
+  link.download = filename ?? `studysession-calendar-${new Date().toISOString().slice(0, 10)}.ics`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SiteJsonLd from "@/components/SiteJsonLd";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
@@ -75,6 +76,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <GoogleAnalytics />
         <SiteJsonLd />
         <LanguageProvider>
           <Navbar />

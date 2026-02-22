@@ -19,6 +19,9 @@ export default function CookieConsentBanner() {
   const handleChoice = (choice: 'accept' | 'decline') => {
     localStorage.setItem(STORAGE_KEY, choice);
     setShowBanner(false);
+    if (choice === 'accept') {
+      window.dispatchEvent(new CustomEvent('cookie-consent-accepted'));
+    }
   };
 
   if (!showBanner) return null;

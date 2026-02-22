@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Calendar, BookOpen, Trophy, Lock } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function PricingContent() {
   const [loading, setLoading] = useState<string | null>(null);
@@ -11,6 +12,7 @@ export default function PricingContent() {
   const searchParams = useSearchParams();
   const feature = searchParams.get('feature');
   const authRequired = searchParams.get('auth') === 'required';
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch('/api/user/subscription')
@@ -28,51 +30,40 @@ export default function PricingContent() {
 
   const plans = [
     {
-      name: 'Scholar',
+      key: 'scholar' as const,
+      name: t.pricing.plans.scholar.name,
       price: '$30',
       period: '/year',
-      description: 'AI Calendar parsing & unlimited uploads',
-      features: [
-        'AI-powered course outline parsing',
-        'Unlimited calendar uploads',
-        'Color-coded class schedules',
-      ],
+      description: t.pricing.plans.scholar.description,
+      features: t.pricing.plans.scholar.features,
       icon: Calendar,
       color: 'accent-cyan',
-      cta: 'Get Scholar',
+      cta: t.pricing.plans.scholar.cta,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_SCHOLAR,
     },
     {
-      name: 'Ultimate',
+      key: 'ultimate' as const,
+      name: t.pricing.plans.ultimate.name,
       price: '$11',
       period: '/month',
-      description: 'Everything. Best value.',
-      features: [
-        'Everything in Champion',
-        'All Scholar features',
-        'Best value bundle',
-      ],
+      description: t.pricing.plans.ultimate.description,
+      features: t.pricing.plans.ultimate.features,
       icon: Trophy,
       color: 'accent-purple',
-      cta: 'Get Ultimate',
+      cta: t.pricing.plans.ultimate.cta,
       popular: true,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE,
     },
     {
-      name: 'Champion',
+      key: 'champion' as const,
+      name: t.pricing.plans.champion.name,
       price: '$10',
       period: '/month',
-      description: 'Learn section & race eligibility',
-      features: [
-        'Everything in Scholar',
-        'Full Learn section access',
-        'Create & complete courses',
-        'XP system & achievements',
-        'Monthly race participation',
-      ],
+      description: t.pricing.plans.champion.description,
+      features: t.pricing.plans.champion.features,
       icon: BookOpen,
       color: 'accent-pink',
-      cta: 'Get Champion',
+      cta: t.pricing.plans.champion.cta,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_CHAMPION,
     },
   ];
@@ -80,9 +71,9 @@ export default function PricingContent() {
   return (
     <>
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
+        <h1 className="text-4xl font-bold mb-4">{t.pricing.chooseYourPlan}</h1>
         <p className="text-foreground/70 text-lg">
-          Level up your learning with AI-powered tools and gamified courses.
+          {t.pricing.subtitle}
         </p>
       </div>
 
@@ -90,30 +81,30 @@ export default function PricingContent() {
         <div className="mb-10 p-5 rounded-xl border border-accent-pink/40 bg-accent-pink/10 text-center max-w-2xl mx-auto">
           {authRequired ? (
             <>
-              <p className="font-semibold text-accent-pink mb-1">Sign in to get started</p>
+              <p className="font-semibold text-accent-pink mb-1">{t.pricing.signInToStart}</p>
               <p className="text-foreground/70 text-sm mb-4">
-                You need an account before purchasing a plan. Create one for free — it only takes a second.
+                {t.pricing.needAccount}
               </p>
               <div className="flex gap-3 justify-center">
                 <Link
                   href="/login"
                   className="px-5 py-2 rounded-lg border border-white/20 hover:bg-white/5 text-sm font-semibold"
                 >
-                  Sign In
+                  {t.pricing.signIn}
                 </Link>
                 <Link
                   href="/signup"
                   className="px-5 py-2 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 text-sm font-semibold"
                 >
-                  Create Account
+                  {t.pricing.createAccount}
                 </Link>
               </div>
             </>
           ) : (
             <>
-              <p className="font-semibold text-accent-pink mb-1">Unlock Learn &amp; XP</p>
+              <p className="font-semibold text-accent-pink mb-1">{t.pricing.unlockLearn}</p>
               <p className="text-foreground/70 text-sm">
-                The <strong>Champion</strong> or <strong>Ultimate</strong> plan gives you full access to the Learn section, course creation, XP, achievements, and monthly races.
+                {t.pricing.unlockDesc}
               </p>
             </>
           )}
@@ -131,7 +122,7 @@ export default function PricingContent() {
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-accent-purple/20 text-accent-purple text-sm font-semibold">
-                Most Popular
+                {t.pricing.mostPopular}
               </div>
             )}
             <div className={`p-3 rounded-xl bg-${plan.color}/10 w-fit mb-6`}>
@@ -163,7 +154,7 @@ export default function PricingContent() {
                 `}
               >
                 <Lock size={15} />
-                Sign in to purchase
+                {t.pricing.signInToPurchase}
               </Link>
             ) : plan.priceId ? (
               <button
@@ -190,7 +181,7 @@ export default function PricingContent() {
                   }
                 `}
               >
-                {loading === plan.name ? 'Loading...' : plan.cta}
+                {loading === plan.name ? t.pricing.loading : plan.cta}
               </button>
             ) : (
               <Link
@@ -211,7 +202,7 @@ export default function PricingContent() {
       </div>
 
       <p className="text-center text-foreground/50 mt-12 text-sm">
-        All plans include a free trial. Cancel anytime.
+        {t.pricing.freeTrial}
       </p>
     </>
   );

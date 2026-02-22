@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Trophy, Users, Zap, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import type { RacePeriod, RaceEntry } from '@/lib/database.types';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface LeaderboardEntry {
   rank: number;
@@ -54,6 +55,7 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
     }
   };
 
+  const { t } = useLanguage();
   const myRank = myEntry
     ? leaderboard.find((e) => e.user_id === myEntry.user_id)?.rank ?? 0
     : 0;
@@ -77,23 +79,23 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
               </span>
               <span className="flex items-center gap-1">
                 <Users size={16} />
-                {participantCount} competitors
+                {participantCount} {t.race.competitors}
               </span>
             </div>
           </div>
           <div className="bg-accent-purple/10 rounded-xl p-6 border border-accent-purple/20">
-            <p className="text-sm text-foreground/60 mb-2">Prizes</p>
+            <p className="text-sm text-foreground/60 mb-2">{t.race.cashPrizes}</p>
             <div className="flex gap-6">
               <div>
-                <p className="text-2xl font-bold text-accent-purple">1st</p>
+                <p className="text-2xl font-bold text-accent-purple">{t.race.first}</p>
                 <p className="text-lg">${activePeriod.prize_pool_1st}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-accent-purple">2nd</p>
+                <p className="text-2xl font-bold text-accent-purple">{t.race.second}</p>
                 <p className="text-lg">${activePeriod.prize_pool_2nd}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-accent-purple">3rd</p>
+                <p className="text-2xl font-bold text-accent-purple">{t.race.third}</p>
                 <p className="text-lg">${activePeriod.prize_pool_3rd}</p>
               </div>
             </div>
@@ -108,7 +110,7 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
               className="w-full md:w-auto px-8 py-4 rounded-lg bg-accent-purple/20 text-accent-purple border-2 border-accent-purple/50 hover:bg-accent-purple/30 font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Zap size={20} />
-              {optingIn ? 'Joining...' : "Join This Month's XP Challenge"}
+              {optingIn ? t.race.joining : t.race.joinChallenge}
             </button>
           </div>
         )}
@@ -116,7 +118,7 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
         {myEntry && (
           <div className="mt-6 pt-6 border-t border-white/10">
             <p className="text-accent-purple font-semibold">
-              You&apos;re in! Rank: #{myRank || '-'} • XP: {myEntry.xp_earned_during_race ?? 0}
+              {t.race.youAreIn.replace('{rank}', String(myRank || '-')).replace('{xp}', String(myEntry.xp_earned_during_race ?? 0))}
             </p>
           </div>
         )}
@@ -125,7 +127,7 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
       <div className="glass rounded-2xl p-6 border border-white/5">
         <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
           <Trophy size={24} />
-          Leaderboard
+          {t.race.leaderboard}
         </h3>
         <div className="space-y-3">
           {leaderboard.slice(0, 10).map((entry, i) => (
@@ -142,37 +144,26 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
           ))}
         </div>
         {leaderboard.length === 0 && (
-          <p className="text-center text-foreground/60 py-8">No participants yet. Be the first!</p>
+          <p className="text-center text-foreground/60 py-8">{t.race.noParticipants}</p>
         )}
       </div>
 
       {showTermsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="glass rounded-2xl p-8 border border-accent-purple/20 max-w-lg w-full shadow-xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold mb-4">How It Works</h3>
+            <h3 className="text-xl font-bold mb-4">{t.race.howItWorks}</h3>
             <div className="space-y-4 text-foreground/80 mb-6">
-              <p>The XP Challenge is a productivity competition. Here&apos;s how it works:</p>
               <ul className="list-disc list-inside space-y-2 text-sm">
-                <li>
-                  <strong>Earn XP</strong> by completing course modules and quizzes in the Learn section.
-                </li>
-                <li>
-                  <strong>Whoever has the most XP at the end</strong> of the race period wins 1st place.
-                </li>
-                <li>
-                  <strong>1st, 2nd, and 3rd place</strong> each receive a cash prize.
-                </li>
-                <li>
-                  <strong>XP is tracked automatically</strong> — just keep learning and your progress counts.
-                </li>
+                <li><strong>{t.race.earnXp}</strong> — {t.race.xpDesc}</li>
+                <li><strong>{t.race.prizesDesc}</strong></li>
+                <li>{t.race.trackingDesc}</li>
               </ul>
             </div>
-            <h3 className="text-xl font-bold mb-4">Terms</h3>
+            <h3 className="text-xl font-bold mb-4">{t.race.termsTitle}</h3>
             <div className="space-y-4 text-foreground/80 mb-6">
-              <p>By participating, you acknowledge:</p>
               <ul className="list-disc list-inside space-y-2 text-sm">
-                <li>Participation is optional.</li>
-                <li>Champion or Ultimate subscription required.</li>
+                <li>{t.race.participationNote}</li>
+                <li>{t.race.subscriptionRequired}</li>
               </ul>
             </div>
             <div className="flex gap-3 justify-end">
@@ -180,7 +171,7 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
                 onClick={() => setShowTermsModal(false)}
                 className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/5"
               >
-                Cancel
+                {t.race.cancelButton}
               </button>
               <button
                 onClick={handleOptIn}
@@ -188,7 +179,7 @@ export default function XpRaceView({ activePeriod, myEntry: initialMyEntry }: Xp
                 className="px-6 py-2 rounded-lg bg-accent-purple/20 text-accent-purple border-2 border-accent-purple/50 hover:bg-accent-purple/30 font-semibold disabled:opacity-50 flex items-center gap-2"
               >
                 <Zap size={18} />
-                I Agree & Join
+                {t.race.agreeJoin}
               </button>
             </div>
           </div>

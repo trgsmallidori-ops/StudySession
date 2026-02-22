@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -70,10 +71,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
-        <Navbar />
-        <main className="flex-1 flex flex-col min-h-0">{children}</main>
-        <Footer />
-        <CookieConsentBanner />
+        <LanguageProvider>
+          <Navbar />
+          <main className="flex-1 flex flex-col min-h-0">{children}</main>
+          <Footer />
+          <CookieConsentBanner />
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
+  const { t } = useLanguage();
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,15 +36,15 @@ export default function ResetPasswordPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="glass rounded-2xl p-8 w-full max-w-md border border-accent-cyan/20 text-center">
-          <h1 className="text-2xl font-bold mb-4 text-accent-cyan">Check your email</h1>
+          <h1 className="text-2xl font-bold mb-4 text-accent-cyan">{t.auth.checkEmail}</h1>
           <p className="text-foreground/80 mb-6">
-            We&apos;ve sent you a link to reset your password.
+            {t.auth.resetLink}
           </p>
           <Link
             href="/login"
             className="text-accent-cyan hover:underline"
           >
-            Back to login
+            {t.auth.backToLogin}
           </Link>
         </div>
       </div>
@@ -53,12 +55,12 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="glass rounded-2xl p-8 w-full max-w-md border border-accent-cyan/20">
         <h1 className="text-2xl font-bold text-center mb-6 tracking-wider uppercase text-accent-cyan">
-          Reset Password
+          {t.auth.resetPassword}
         </h1>
 
         <form onSubmit={handleReset} className="space-y-4">
           <div>
-            <label className="block text-sm text-foreground/80 mb-2">Email</label>
+            <label className="block text-sm text-foreground/80 mb-2">{t.auth.email}</label>
             <input
               type="email"
               value={email}
@@ -75,13 +77,13 @@ export default function ResetPasswordPage() {
             disabled={loading}
             className="w-full py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 transition-colors disabled:opacity-50 font-semibold"
           >
-            {loading ? 'Sending...' : 'Send Reset Link'}
+            {loading ? t.auth.sending : t.auth.sendResetLink}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-foreground/70">
           <Link href="/login" className="text-accent-cyan hover:underline">
-            Back to login
+            {t.auth.backToLogin}
           </Link>
         </p>
       </div>

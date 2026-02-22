@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import { Menu, X, Calendar, BookOpen, Trophy, CreditCard, LogOut, User } from 'lucide-react';
+import { Menu, X, Calendar, BookOpen, Trophy, CreditCard, LogOut, User, Globe } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function Navbar() {
   const [user, setUser] = useState<{ email?: string; id?: string } | null>(null);
@@ -12,6 +13,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { t, locale, setLocale } = useLanguage();
 
   useEffect(() => {
     let mounted = true;
@@ -36,7 +38,6 @@ export default function Navbar() {
     load();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Defer state updates to avoid "state update on unmounted component" during HMR/navigation
       queueMicrotask(() => {
         if (!mounted) return;
         setUser(session?.user ?? null);
@@ -63,10 +64,10 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { href: '/calendar', label: 'Calendar', icon: Calendar },
-    { href: '/learn', label: 'Learn', icon: BookOpen },
-    { href: '/race', label: 'Race', icon: Trophy },
-    { href: '/pricing', label: 'Pricing', icon: CreditCard },
+    { href: '/calendar', label: t.nav.calendar, icon: Calendar },
+    { href: '/learn', label: t.nav.learn, icon: BookOpen },
+    { href: '/race', label: t.nav.race, icon: Trophy },
+    { href: '/pricing', label: t.nav.pricing, icon: CreditCard },
   ];
 
   return (
@@ -93,6 +94,16 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
+            {/* Language switcher */}
+            <button
+              onClick={() => setLocale(locale === 'en' ? 'fr' : 'en')}
+              className="flex items-center gap-1.5 text-foreground/60 hover:text-accent-cyan transition-colors text-sm"
+              title={locale === 'en' ? 'Passer en français' : 'Switch to English'}
+            >
+              <Globe size={16} />
+              <span className="font-medium">{locale === 'en' ? 'FR' : 'EN'}</span>
+            </button>
+
             {user ? (
               <>
                 {isAdmin && (
@@ -100,7 +111,7 @@ export default function Navbar() {
                     href="/admin"
                     className="text-foreground/80 hover:text-accent-purple transition-colors"
                   >
-                    Admin
+                    {t.nav.admin}
                   </Link>
                 )}
                 <Link
@@ -108,14 +119,14 @@ export default function Navbar() {
                   className="flex items-center gap-2 text-foreground/80 hover:text-accent-cyan transition-colors"
                 >
                   <User size={18} />
-                  Dashboard
+                  {t.nav.dashboard}
                 </Link>
                 <button
                   onClick={handleSignOut}
                   className="flex items-center gap-2 text-foreground/80 hover:text-red-400 transition-colors"
                 >
                   <LogOut size={18} />
-                  Sign out
+                  {t.nav.signOut}
                 </button>
               </>
             ) : (
@@ -124,13 +135,13 @@ export default function Navbar() {
                   href="/login"
                   className="text-foreground/80 hover:text-accent-cyan transition-colors"
                 >
-                  Sign in
+                  {t.nav.signIn}
                 </Link>
                 <Link
                   href="/signup"
                   className="px-4 py-2 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 transition-colors font-semibold"
                 >
-                  Sign up
+                  {t.nav.signUp}
                 </Link>
               </>
             )}
@@ -165,7 +176,7 @@ export default function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className="block text-foreground/80 hover:text-accent-purple py-2"
                   >
-                    Admin
+                    {t.nav.admin}
                   </Link>
                 )}
                 <Link
@@ -174,14 +185,14 @@ export default function Navbar() {
                   className="block text-foreground/80 hover:text-accent-cyan flex items-center gap-2 py-2"
                 >
                   <User size={18} />
-                  Dashboard
+                  {t.nav.dashboard}
                 </Link>
                 <button
                   onClick={() => { handleSignOut(); setMobileOpen(false); }}
                   className="flex items-center gap-2 text-foreground/80 hover:text-red-400 py-2"
                 >
                   <LogOut size={18} />
-                  Sign out
+                  {t.nav.signOut}
                 </button>
               </>
             ) : (
@@ -191,17 +202,25 @@ export default function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="text-accent-cyan"
                 >
-                  Sign in
+                  {t.nav.signIn}
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setMobileOpen(false)}
                   className="px-4 py-2 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50"
                 >
-                  Sign up
+                  {t.nav.signUp}
                 </Link>
               </div>
             )}
+            {/* Mobile language switcher */}
+            <button
+              onClick={() => { setLocale(locale === 'en' ? 'fr' : 'en'); setMobileOpen(false); }}
+              className="flex items-center gap-1.5 text-foreground/60 hover:text-accent-cyan transition-colors text-sm py-2"
+            >
+              <Globe size={16} />
+              <span className="font-medium">{locale === 'en' ? 'Français' : 'English'}</span>
+            </button>
           </div>
         )}
       </div>

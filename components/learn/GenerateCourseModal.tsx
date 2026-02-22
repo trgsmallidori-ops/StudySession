@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 const GENERATION_TIMER_SECONDS = 60;
 
@@ -14,11 +15,6 @@ interface GenerateCourseModalProps {
 }
 
 const DURATIONS = [3, 4, 7, 10] as const;
-const DIFFICULTIES = [
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' },
-] as const;
 
 export default function GenerateCourseModal({
   isOpen,
@@ -35,6 +31,7 @@ export default function GenerateCourseModal({
   const [timerSeconds, setTimerSeconds] = useState(GENERATION_TIMER_SECONDS);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (isOpen && initialTopic) setTopic(initialTopic);
@@ -61,7 +58,7 @@ export default function GenerateCourseModal({
     e.preventDefault();
     setError(null);
     if (!topic.trim() || topic.trim().length < 3) {
-      setError('Please enter a topic (at least 3 characters)');
+      setError(t.generateCourse.topicError);
       return;
     }
 
@@ -80,14 +77,14 @@ export default function GenerateCourseModal({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'Failed to generate course');
+        setError(data.error ?? t.generateCourse.failed);
         return;
       }
 
       onClose();
       router.push(`/learn/${data.courseId}/enroll`);
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t.generateCourse.tryAgain);
     } finally {
       setLoading(false);
     }
@@ -106,7 +103,7 @@ export default function GenerateCourseModal({
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <Sparkles className="text-accent-pink" size={24} />
-            Generate AI Course
+            {t.generateCourse.title}
           </h2>
           <button
             onClick={onClose}
@@ -124,14 +121,14 @@ export default function GenerateCourseModal({
               htmlFor="topic"
               className="block text-sm font-medium text-foreground/80 mb-2"
             >
-              {fromTests ? 'What is the topic of your test?' : 'What do you want to learn?'}
+              {fromTests ? t.generateCourse.testTopicLabel : t.generateCourse.topicLabel}
             </label>
             <input
               id="topic"
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g. Spanish basics, React hooks, Python for data science"
+              placeholder={t.generateCourse.topicPlaceholder}
               className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-accent-pink/50 focus:ring-1 focus:ring-accent-pink/30 outline-none transition-colors"
               disabled={loading}
               autoFocus
@@ -140,7 +137,7 @@ export default function GenerateCourseModal({
 
           <div>
             <label className="block text-sm font-medium text-foreground/80 mb-2">
-              Course length
+              {t.generateCourse.courseLength}
             </label>
             <div className="flex gap-2 flex-wrap">
               {DURATIONS.map((d) => (
@@ -155,7 +152,7 @@ export default function GenerateCourseModal({
                       : 'bg-white/5 border border-white/10 hover:border-white/20'
                   }`}
                 >
-                  {d} days
+                  {t.learn.days.replace('{n}', String(d))}
                 </button>
               ))}
             </div>
@@ -163,22 +160,22 @@ export default function GenerateCourseModal({
 
           <div>
             <label className="block text-sm font-medium text-foreground/80 mb-2">
-              Difficulty
+              {t.generateCourse.difficulty}
             </label>
             <div className="flex gap-2 flex-wrap">
-              {DIFFICULTIES.map((d) => (
+              {(['beginner', 'intermediate', 'advanced'] as const).map((d) => (
                 <button
-                  key={d.value}
+                  key={d}
                   type="button"
-                  onClick={() => setDifficulty(d.value)}
+                  onClick={() => setDifficulty(d)}
                   disabled={loading}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    difficulty === d.value
+                    difficulty === d
                       ? 'bg-accent-pink/20 text-accent-pink border border-accent-pink/50'
                       : 'bg-white/5 border border-white/10 hover:border-white/20'
                   }`}
                 >
-                  {d.label}
+                  {d === 'beginner' ? t.learn.beginner : d === 'intermediate' ? t.learn.intermediate : t.learn.advanced}
                 </button>
               ))}
             </div>
@@ -200,8 +197,8 @@ export default function GenerateCourseModal({
               </div>
               <p className="text-sm text-center text-foreground/70">
                 {timerSeconds > 0
-                  ? `Generating... ~${timerSeconds}s remaining`
-                  : 'Almost there...'}
+                  ? t.generateCourse.generating.replace('{n}', String(timerSeconds))
+                  : t.generateCourse.almostThere}
               </p>
             </div>
           )}
@@ -213,12 +210,12 @@ export default function GenerateCourseModal({
           >
             {loading ? (
               <>
-                <span className="animate-pulse">AI is building your course...</span>
+                <span className="animate-pulse">{t.generateCourse.buildingCourse}</span>
               </>
             ) : (
               <>
                 <Sparkles size={18} />
-                Generate Course
+                {t.generateCourse.generateButton}
               </>
             )}
           </button>

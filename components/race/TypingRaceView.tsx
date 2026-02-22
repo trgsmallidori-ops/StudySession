@@ -6,6 +6,7 @@ import { Zap, Users, Clock, Trophy, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import type { RacePeriod, RaceEntry } from '@/lib/database.types';
 import TypingTest, { type TypingScore } from './TypingTest';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface LeaderboardEntry {
   rank: number;
@@ -86,6 +87,7 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
     }
   };
 
+  const { t } = useLanguage();
   const myRank = myEntry
     ? leaderboard.find((e) => e.user_id === myEntry.user_id)?.rank ?? 0
     : 0;
@@ -110,23 +112,23 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
               </span>
               <span className="flex items-center gap-1">
                 <Users size={16} />
-                {participantCount} competitors
+                {participantCount} {t.race.competitors}
               </span>
             </div>
           </div>
           <div className="bg-accent-cyan/10 rounded-xl p-6 border border-accent-cyan/20">
-            <p className="text-sm text-foreground/60 mb-2">Cash Prizes</p>
+            <p className="text-sm text-foreground/60 mb-2">{t.race.cashPrizes}</p>
             <div className="flex gap-6">
               <div>
-                <p className="text-2xl font-bold text-accent-cyan">1st</p>
+                <p className="text-2xl font-bold text-accent-cyan">{t.race.first}</p>
                 <p className="text-lg">${activePeriod.prize_pool_1st}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-accent-cyan">2nd</p>
+                <p className="text-2xl font-bold text-accent-cyan">{t.race.second}</p>
                 <p className="text-lg">${activePeriod.prize_pool_2nd}</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-accent-cyan">3rd</p>
+                <p className="text-2xl font-bold text-accent-cyan">{t.race.third}</p>
                 <p className="text-lg">${activePeriod.prize_pool_3rd}</p>
               </div>
             </div>
@@ -136,7 +138,10 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
         {hasSubmitted && myEntry && (
           <div className="mt-6 pt-6 border-t border-white/10">
             <p className="text-accent-cyan font-semibold">
-              Your final score: {myEntry.typing_speed_wpm} WPM ({myEntry.typing_accuracy ?? 0}% accuracy) • Rank: #{myRank || '-'}
+              {t.race.finalScore
+                .replace('{wpm}', String(myEntry.typing_speed_wpm))
+                .replace('{accuracy}', String(myEntry.typing_accuracy ?? 0))
+                .replace('{rank}', String(myRank || '-'))}
             </p>
           </div>
         )}
@@ -146,15 +151,15 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
         <div className="glass rounded-2xl p-8 border border-accent-cyan/20 mb-8">
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <Zap size={24} />
-            Typing Speed Test
+            {t.race.typingTest}
           </h3>
           <p className="text-foreground/70 mb-6">
-            You get <strong>5 practice runs</strong> to warm up. After that, your 6th run is automatically your final submission — no take-backs! You can also submit any practice score early if you&apos;re happy with it.
+            {t.race.practiceRuns}
           </p>
 
           {isFinalRun && (
             <div className="mb-4 p-3 rounded-lg bg-accent-cyan/10 border border-accent-cyan/30 text-accent-cyan text-sm font-semibold">
-              All 5 practice runs used. This is your final run — it will be submitted automatically when you finish!
+              {t.race.finalRun}
             </div>
           )}
 
@@ -169,14 +174,14 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
           {lastScore && !isFinalRun && (
             <div className="mt-6 pt-6 border-t border-white/10">
               <p className="text-sm text-foreground/70 mb-2">
-                Last practice run: {lastScore.wpm} WPM, {lastScore.accuracy}% accuracy
+                {t.race.lastPractice.replace('{wpm}', String(lastScore.wpm)).replace('{accuracy}', String(lastScore.accuracy))}
               </p>
               <button
                 onClick={() => handleFinalSubmitClick(lastScore)}
                 className="flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border-2 border-accent-cyan/50 hover:bg-accent-cyan/30 font-semibold"
               >
                 <Send size={18} />
-                Submit This Score as Final
+                {t.race.submitScore}
               </button>
             </div>
           )}
@@ -186,7 +191,7 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
       <div className="glass rounded-2xl p-6 border border-white/5">
         <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
           <Trophy size={24} />
-          Leaderboard
+          {t.race.leaderboard}
         </h3>
         <div className="space-y-3">
           {leaderboard.slice(0, 10).map((entry, i) => (
@@ -206,16 +211,16 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
           ))}
         </div>
         {leaderboard.length === 0 && (
-          <p className="text-center text-foreground/60 py-8">No submissions yet. Be the first!</p>
+          <p className="text-center text-foreground/60 py-8">{t.race.noSubmissions}</p>
         )}
       </div>
 
       {showConfirm && pendingScore && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="glass rounded-2xl p-8 border border-accent-cyan/20 max-w-md w-full shadow-xl">
-            <h3 className="text-xl font-bold mb-4">Submit Final Score?</h3>
+            <h3 className="text-xl font-bold mb-4">{t.race.confirmTitle}</h3>
             <p className="text-foreground/80 mb-6">
-              You will submit <strong>{pendingScore.wpm} WPM</strong> ({pendingScore.accuracy}% accuracy) as your final score. This cannot be changed.
+              {t.race.confirmDesc.replace('{wpm}', String(pendingScore.wpm)).replace('{accuracy}', String(pendingScore.accuracy))}
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -225,14 +230,14 @@ export default function TypingRaceView({ activePeriod, myEntry: initialMyEntry }
                 }}
                 className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/5"
               >
-                Cancel
+                {t.race.cancelButton}
               </button>
               <button
                 onClick={handleConfirmSubmit}
                 disabled={submitting}
                 className="px-6 py-2 rounded-lg bg-accent-cyan/20 text-accent-cyan border-2 border-accent-cyan/50 hover:bg-accent-cyan/30 font-semibold disabled:opacity-50"
               >
-                {submitting ? 'Submitting...' : 'Confirm'}
+                {submitting ? t.race.submitting : t.race.confirm}
               </button>
             </div>
           </div>

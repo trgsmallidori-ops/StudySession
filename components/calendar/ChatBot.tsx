@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 const STUDY_ACTION_REGEX = /\[STUDY_ACTION:\s*([^|]+)\s*\|\s*([^\]]+)\]/;
 
@@ -21,6 +22,7 @@ export default function ChatBot({ onGenerateStudyCourse, onCalendarUpdated }: Ch
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -60,7 +62,7 @@ export default function ChatBot({ onGenerateStudyCourse, onCalendarUpdated }: Ch
         ...prev,
         {
           role: 'assistant',
-          content: `Sorry, something went wrong: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          content: t.chatbot.error.replace('{message}', error instanceof Error ? error.message : 'Unknown error'),
         },
       ]);
     } finally {
@@ -74,7 +76,7 @@ export default function ChatBot({ onGenerateStudyCourse, onCalendarUpdated }: Ch
         type="button"
         onClick={() => setIsOpen((o) => !o)}
         className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-accent-cyan/20 text-accent-cyan border-2 border-accent-cyan/50 hover:bg-accent-cyan/30 flex items-center justify-center shadow-lg transition-all"
-        aria-label={isOpen ? 'Close chat' : 'Open study assistant'}
+        aria-label={isOpen ? t.chatbot.closeChat : t.chatbot.openAssistant}
       >
         <MessageCircle size={24} />
       </button>
@@ -82,12 +84,12 @@ export default function ChatBot({ onGenerateStudyCourse, onCalendarUpdated }: Ch
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-40 w-[380px] max-w-[calc(100vw-3rem)] h-[480px] max-h-[70vh] flex flex-col glass rounded-2xl border border-accent-cyan/20 shadow-xl overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
-            <h3 className="font-semibold text-accent-cyan">Study Assistant</h3>
+            <h3 className="font-semibold text-accent-cyan">{t.chatbot.title}</h3>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               className="p-1.5 rounded-lg hover:bg-white/10 text-foreground/70"
-              aria-label="Close"
+              aria-label={t.chatbot.close}
             >
               <X size={18} />
             </button>
@@ -96,7 +98,7 @@ export default function ChatBot({ onGenerateStudyCourse, onCalendarUpdated }: Ch
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 && !streaming && (
               <p className="text-sm text-foreground/60">
-                Ask about your calendar or make quick edits. Try &quot;When is my next assignment?&quot; or &quot;Move my math test to Friday&quot;
+                {t.chatbot.placeholder}
               </p>
             )}
             {messages.map((msg, i) => (
@@ -126,7 +128,7 @@ export default function ChatBot({ onGenerateStudyCourse, onCalendarUpdated }: Ch
               <div className="flex justify-start">
                 <div className="max-w-[85%] rounded-xl px-4 py-2 text-sm bg-white/5 border border-white/10 flex items-center gap-2">
                   <Loader2 size={16} className="animate-spin text-accent-cyan" />
-                  <span className="text-foreground/60">Thinking...</span>
+                  <span className="text-foreground/60">{t.chatbot.thinking}</span>
                 </div>
               </div>
             )}
@@ -139,7 +141,7 @@ export default function ChatBot({ onGenerateStudyCourse, onCalendarUpdated }: Ch
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about your calendar..."
+                placeholder={t.chatbot.inputPlaceholder}
                 disabled={streaming}
                 className="flex-1 px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-foreground placeholder:text-foreground/40 focus:border-accent-cyan focus:outline-none disabled:opacity-50"
               />
@@ -169,6 +171,7 @@ function AssistantBubble({
   content: string;
   onGenerateStudyCourse: (topic: string) => void;
 }) {
+  const { t } = useLanguage();
   const match = content.match(STUDY_ACTION_REGEX);
   if (!match) {
     return <p className="whitespace-pre-wrap">{content}</p>;
@@ -186,7 +189,7 @@ function AssistantBubble({
         onClick={() => onGenerateStudyCourse(topic.trim())}
         className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 text-sm font-medium transition-colors"
       >
-        Generate Study Course: {topic.trim()}
+        {t.chatbot.generateCourse.replace('{topic}', topic.trim())}
       </button>
       {after && <p className="whitespace-pre-wrap">{after}</p>}
     </div>

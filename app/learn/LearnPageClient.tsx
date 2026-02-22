@@ -7,6 +7,7 @@ import XPBar from '@/components/learn/XPBar';
 import GenerateCourseModal from '@/components/learn/GenerateCourseModal';
 import { Course } from '@/lib/database.types';
 import { Trophy, ChevronDown, ChevronUp } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface GlobalLeaderboardEntry {
   rank: number;
@@ -42,6 +43,7 @@ export default function LearnPageClient({
   const [courses] = useState(initialCourses);
   const [myCourses] = useState(initialMyCourses);
   const [filter, setFilter] = useState<string>('all');
+  const { t } = useLanguage();
   const [modalOpen, setModalOpen] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState<'global' | 'race'>('global');
   const [leaderboardExpanded, setLeaderboardExpanded] = useState(true);
@@ -75,9 +77,9 @@ export default function LearnPageClient({
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Learn</h1>
+          <h1 className="text-3xl font-bold mb-2">{t.learn.title}</h1>
           <p className="text-foreground/70">
-            Browse courses, earn XP, and unlock achievements.
+            {t.learn.subtitle}
           </p>
         </div>
         <div className="glass rounded-xl p-6 border border-accent-pink/20 w-full md:w-80">
@@ -91,7 +93,7 @@ export default function LearnPageClient({
           className="flex items-center gap-2 w-full text-left mb-4"
         >
           <Trophy className="text-accent-pink" size={24} />
-          <h2 className="text-xl font-semibold">Leaderboard</h2>
+          <h2 className="text-xl font-semibold">{t.learn.leaderboard}</h2>
           {leaderboardExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
         {leaderboardExpanded && (
@@ -105,7 +107,7 @@ export default function LearnPageClient({
                     : 'bg-white/5 border border-white/10 hover:border-white/20'
                 }`}
               >
-                Global XP
+                {t.learn.globalXp}
               </button>
               {activeRacePeriodId && (
                 <button
@@ -116,7 +118,7 @@ export default function LearnPageClient({
                       : 'bg-white/5 border border-white/10 hover:border-white/20'
                   }`}
                 >
-                  Race Leaderboard
+                  {t.learn.raceLeaderboard}
                 </button>
               )}
             </div>
@@ -153,10 +155,10 @@ export default function LearnPageClient({
                 ))}
             </div>
             {leaderboardTab === 'global' && globalLeaderboard.length === 0 && (
-              <p className="text-center text-foreground/60 py-6">No users yet.</p>
+              <p className="text-center text-foreground/60 py-6">{t.learn.noUsers}</p>
             )}
             {leaderboardTab === 'race' && raceLeaderboard.length === 0 && (
-              <p className="text-center text-foreground/60 py-6">No race participants yet.</p>
+              <p className="text-center text-foreground/60 py-6">{t.learn.noParticipants}</p>
             )}
           </div>
         )}
@@ -164,7 +166,7 @@ export default function LearnPageClient({
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div className="flex gap-2">
-        {['all', 'beginner', 'intermediate', 'advanced'].map((f) => (
+        {(['all', 'beginner', 'intermediate', 'advanced'] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -174,7 +176,7 @@ export default function LearnPageClient({
                 : 'bg-white/5 border border-white/10 hover:border-white/20'
             }`}
           >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
+            {f === 'all' ? t.learn.all : f === 'beginner' ? t.learn.beginner : f === 'intermediate' ? t.learn.intermediate : t.learn.advanced}
           </button>
         ))}
         </div>
@@ -182,13 +184,13 @@ export default function LearnPageClient({
           onClick={() => setModalOpen(true)}
           className="px-4 py-2 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 font-semibold"
         >
-          Generate AI Course
+          {t.learn.generateCourse}
         </button>
       </div>
 
       {myCourses.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">My AI Courses</h2>
+          <h2 className="text-xl font-semibold mb-4">{t.learn.myCourses}</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {myCourses.map((course) => (
               <CourseCard
@@ -201,7 +203,7 @@ export default function LearnPageClient({
         </div>
       )}
 
-      <h2 className="text-xl font-semibold mb-4">All Courses</h2>
+      <h2 className="text-xl font-semibold mb-4">{t.learn.allCourses}</h2>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((course) => (
           <CourseCard
@@ -214,7 +216,7 @@ export default function LearnPageClient({
 
       {filtered.length === 0 && (
         <div className="text-center py-16 text-foreground/60">
-          No courses found. Check back soon or generate your own!
+          {t.learn.noCourses}
         </div>
       )}
 

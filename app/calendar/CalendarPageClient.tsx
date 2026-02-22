@@ -14,6 +14,7 @@ import EventModal from '@/components/calendar/EventModal';
 import type { EventFormPayload } from '@/components/calendar/EventModal';
 import { CalendarEvent as DBCalendarEvent, Class } from '@/lib/database.types';
 import { addMonths, subMonths } from 'date-fns';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface CalendarPageClientProps {
   uploadsUsed?: number;
@@ -23,6 +24,7 @@ interface CalendarPageClientProps {
 }
 
 export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999, canUseAI = false, canGenerateStudyCourse = false }: CalendarPageClientProps) {
+  const { t } = useLanguage();
   const [events, setEvents] = useState<DBCalendarEvent[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,7 +128,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
   };
 
   const handleClearCalendar = async () => {
-    if (!confirm('Clear entire calendar? This deletes all classes and events.')) return;
+    if (!confirm(t.calendar.confirmClear)) return;
     setClearingCalendar(true);
     const res = await fetch('/api/calendar/clear', { method: 'POST' });
     if (res.ok) {
@@ -229,7 +231,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
   return (
     <div className="flex flex-col flex-1 min-h-0 px-4 py-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 flex-shrink-0">
-        <h1 className="text-3xl font-bold">Calendar</h1>
+        <h1 className="text-3xl font-bold">{t.calendar.title}</h1>
         <div className="flex flex-wrap gap-2">
           <ExportButton events={events} disabled={loading} />
           <button
@@ -240,7 +242,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 font-semibold"
           >
             <Plus size={18} />
-            Add Class
+            {t.calendar.addClass}
           </button>
           <button
             onClick={handleClearCalendar}
@@ -248,7 +250,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Trash2 size={18} />
-            {clearingCalendar ? 'Clearing...' : 'Clear Calendar'}
+            {clearingCalendar ? t.calendar.clearing : t.calendar.clearCalendar}
           </button>
           {canUseAI && (
             <button
@@ -260,7 +262,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
               }`}
             >
               <Upload size={18} />
-              Upload Syllabus
+              {t.calendar.uploadSyllabus}
             </button>
           )}
         </div>
@@ -268,7 +270,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
 
       {canUseAI && showUploadSection && (
         <div className="glass rounded-xl p-6 mb-6 border border-accent-cyan/20">
-          <h3 className="text-lg font-semibold mb-4">Import from course outline</h3>
+          <h3 className="text-lg font-semibold mb-4">{t.calendar.importOutline}</h3>
           <UploadOutline
             onParsed={handleParsedOutline}
             uploadsUsed={uploadsUsed}
@@ -293,7 +295,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
         <div className="glass rounded-xl p-6 mb-8 border border-accent-cyan/20">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {editingClass ? 'Edit Class' : 'New Class'}
+              {editingClass ? t.calendar.editClass : t.calendar.newClass}
             </h2>
             <button onClick={() => { setShowClassForm(false); setEditingClass(null); }}>
               <X size={24} />
@@ -329,10 +331,10 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
         )}
         <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
           <Filter size={18} className="text-foreground/60" />
-          Your Classes
+          {t.calendar.yourClasses}
           {classFilter.size > 0 && (
             <span className="text-sm font-normal text-foreground/60">
-              (filtering by {classFilter.size} class{classFilter.size !== 1 ? 'es' : ''})
+              {classFilter.size !== 1 ? t.calendar.filteringByPlural.replace('{n}', String(classFilter.size)) : t.calendar.filteringBy.replace('{n}', String(classFilter.size))}
             </span>
           )}
         </h3>
@@ -365,30 +367,30 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
                 }}
                 className="text-sm text-accent-cyan hover:underline"
               >
-                Edit
+                {t.calendar.edit}
               </button>
               <button
                 onClick={() => setClassToDelete(c)}
                 className="text-sm text-red-400 hover:underline"
               >
-                Delete
+                {t.calendar.delete}
               </button>
             </div>
           ))}
           {classes.length === 0 && (
-            <p className="text-foreground/60">No classes yet. Add one to get started.</p>
+            <p className="text-foreground/60">{t.calendar.noClasses}</p>
           )}
         </div>
         {classes.length > 0 && (
           <p className="text-sm text-foreground/50 mt-2">
-            Click a class name to filter the calendar. Click again to toggle.
+            {t.calendar.clickToFilter}
             {classFilter.size > 0 && (
               <button
                 type="button"
                 onClick={() => setClassFilter(new Set())}
                 className="ml-2 text-accent-cyan hover:underline"
               >
-                Show all
+                {t.calendar.showAll}
               </button>
             )}
           </p>
@@ -398,7 +400,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
       <div className="flex-1 min-h-[calc(100dvh-160px)] flex flex-col">
         {loading ? (
           <div className="flex-1 min-h-0 flex items-center justify-center glass rounded-xl border border-white/5">
-            <div className="animate-pulse text-foreground/60">Loading calendar...</div>
+            <div className="animate-pulse text-foreground/60">{t.calendar.loading}</div>
           </div>
         ) : (
           <CalendarView

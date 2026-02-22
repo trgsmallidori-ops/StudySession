@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ParsedOutline {
   courseName: string;
@@ -48,6 +49,7 @@ export default function UploadOutline({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   const handleFile = async (file: File) => {
     if (!file) return;
@@ -64,12 +66,12 @@ export default function UploadOutline({
       validTypes.includes(file.type) || validExt.includes(ext);
 
     if (!isValid) {
-      setError('Please upload a PDF, TXT, or Word document');
+      setError(t.calendar.invalidFile);
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      setError('File must be under 10MB');
+      setError(t.calendar.fileTooLarge);
       return;
     }
 
@@ -91,14 +93,14 @@ export default function UploadOutline({
         if (data.limitReached) {
           onLimitReached?.();
         } else {
-          setError(data.error ?? 'Failed to parse');
+          setError(data.error ?? t.calendar.parseFailed);
         }
         return;
       }
 
       onParsed(data);
     } catch {
-      setError('Failed to parse outline');
+      setError(t.calendar.parseFailed);
     } finally {
       setLoading(false);
     }
@@ -122,7 +124,7 @@ export default function UploadOutline({
       {typeof uploadsUsed === 'number' && typeof uploadLimit === 'number' ? (
         <div className="flex items-center justify-between text-sm text-foreground/60">
           <span>
-            {uploadsUsed} / {uploadLimit} uploads used
+            {t.calendar.uploadsUsed.replace('{n}', String(uploadsUsed)).replace('{limit}', String(uploadLimit))}
           </span>
         </div>
       ) : null}
@@ -151,10 +153,10 @@ export default function UploadOutline({
           <>
             <Upload className="mx-auto text-accent-cyan mb-4" size={48} />
             <p className="text-foreground font-medium mb-1">
-              Drop your course outline here or click to upload
+              {t.calendar.dropOutline}
             </p>
             <p className="text-sm text-foreground/60">
-              PDF, TXT, or Word (.docx), max 10MB. AI will extract tests, assignments, and schedule.
+              {t.calendar.uploadHint}
             </p>
           </>
         )}

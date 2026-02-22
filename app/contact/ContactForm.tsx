@@ -4,18 +4,24 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
-const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Valid email required'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
-});
-
-type FormData = z.infer<typeof schema>;
+type FormData = {
+  name: string;
+  email: string;
+  message: string;
+};
 
 export default function ContactForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
+
+  const schema = z.object({
+    name: z.string().min(1, t.contact.validation.nameRequired),
+    email: z.string().email(t.contact.validation.emailRequired),
+    message: z.string().min(10, t.contact.validation.messageMin),
+  });
 
   const {
     register,
@@ -35,7 +41,7 @@ export default function ContactForm() {
 
     if (!res.ok) {
       const json = await res.json();
-      setError(json.error ?? 'Failed to send');
+      setError(json.error ?? t.contact.failedToSend);
       return;
     }
 
@@ -45,9 +51,9 @@ export default function ContactForm() {
   if (success) {
     return (
       <div className="glass rounded-xl p-8 border border-accent-cyan/20 text-center">
-        <h2 className="text-xl font-semibold text-accent-cyan mb-2">Message Sent!</h2>
+        <h2 className="text-xl font-semibold text-accent-cyan mb-2">{t.contact.successTitle}</h2>
         <p className="text-foreground/80">
-          Thanks for reaching out. We&apos;ll get back to you soon.
+          {t.contact.successMessage}
         </p>
       </div>
     );
@@ -56,7 +62,7 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <label className="block text-sm text-foreground/80 mb-2">Name</label>
+        <label className="block text-sm text-foreground/80 mb-2">{t.contact.name}</label>
         <input
           {...register('name')}
           className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
@@ -66,7 +72,7 @@ export default function ContactForm() {
         )}
       </div>
       <div>
-        <label className="block text-sm text-foreground/80 mb-2">Email</label>
+        <label className="block text-sm text-foreground/80 mb-2">{t.contact.email}</label>
         <input
           type="email"
           {...register('email')}
@@ -77,7 +83,7 @@ export default function ContactForm() {
         )}
       </div>
       <div>
-        <label className="block text-sm text-foreground/80 mb-2">Message</label>
+        <label className="block text-sm text-foreground/80 mb-2">{t.contact.message}</label>
         <textarea
           {...register('message')}
           rows={5}
@@ -92,7 +98,7 @@ export default function ContactForm() {
         type="submit"
         className="px-8 py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 font-semibold"
       >
-        Send Message
+        {t.contact.send}
       </button>
     </form>
   );

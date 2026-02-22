@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +45,12 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="glass rounded-2xl p-8 w-full max-w-md border border-accent-cyan/20">
         <h1 className="text-2xl font-bold text-center mb-6 tracking-wider uppercase text-accent-cyan">
-          Sign In
+          {t.auth.signIn}
         </h1>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm text-foreground/80 mb-2">Email</label>
+            <label className="block text-sm text-foreground/80 mb-2">{t.auth.email}</label>
             <input
               type="email"
               value={email}
@@ -58,7 +60,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-foreground/80 mb-2">Password</label>
+            <label className="block text-sm text-foreground/80 mb-2">{t.auth.password}</label>
             <input
               type="password"
               value={password}
@@ -75,7 +77,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 transition-colors disabled:opacity-50 font-semibold"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t.auth.signingIn : t.auth.signIn}
           </button>
         </form>
 
@@ -84,25 +86,25 @@ export default function LoginPage() {
             onClick={() => handleOAuth('google')}
             className="w-full py-3 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-colors flex items-center justify-center gap-2"
           >
-            Continue with Google
+            {t.auth.continueGoogle}
           </button>
           <button
             onClick={() => handleOAuth('github')}
             className="w-full py-3 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-colors flex items-center justify-center gap-2"
           >
-            Continue with GitHub
+            {t.auth.continueGithub}
           </button>
         </div>
 
         <p className="mt-6 text-center text-sm text-foreground/70">
-          Don&apos;t have an account?{' '}
+          {t.auth.noAccount}{' '}
           <Link href="/signup" className="text-accent-cyan hover:underline">
-            Sign up
+            {t.nav.signUp}
           </Link>
         </p>
         <p className="mt-2 text-center text-sm text-foreground/70">
           <Link href="/reset-password" className="text-accent-cyan hover:underline">
-            Forgot password?
+            {t.auth.forgotPassword}
           </Link>
         </p>
       </div>

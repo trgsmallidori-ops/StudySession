@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -15,12 +16,13 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (!agreeToTerms) {
-      setError('You must agree to the Terms & Conditions and Privacy Policy to create an account.');
+      setError(t.auth.mustAgree);
       return;
     }
     setLoading(true);
@@ -45,7 +47,7 @@ export default function SignupPage() {
   const handleOAuth = async (provider: 'google' | 'github') => {
     setError(null);
     if (!agreeToTerms) {
-      setError('You must agree to the Terms & Conditions and Privacy Policy to create an account.');
+      setError(t.auth.mustAgree);
       return;
     }
     const { error } = await supabase.auth.signInWithOAuth({
@@ -59,15 +61,15 @@ export default function SignupPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="glass rounded-2xl p-8 w-full max-w-md border border-accent-cyan/20 text-center">
-          <h1 className="text-2xl font-bold mb-4 text-accent-cyan">Check your email</h1>
+          <h1 className="text-2xl font-bold mb-4 text-accent-cyan">{t.auth.checkEmail}</h1>
           <p className="text-foreground/80 mb-6">
-            We&apos;ve sent you a confirmation link. Click it to activate your account.
+            {t.auth.confirmLink}
           </p>
           <Link
             href="/login"
             className="text-accent-cyan hover:underline"
           >
-            Back to login
+            {t.auth.backToLogin}
           </Link>
         </div>
       </div>
@@ -78,12 +80,12 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="glass rounded-2xl p-8 w-full max-w-md border border-accent-cyan/20">
         <h1 className="text-2xl font-bold text-center mb-6 tracking-wider uppercase text-accent-cyan">
-          Create Account
+          {t.auth.createAccount}
         </h1>
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label className="block text-sm text-foreground/80 mb-2">Full Name</label>
+            <label className="block text-sm text-foreground/80 mb-2">{t.auth.fullName}</label>
             <input
               type="text"
               value={fullName}
@@ -92,7 +94,7 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-foreground/80 mb-2">Email</label>
+            <label className="block text-sm text-foreground/80 mb-2">{t.auth.email}</label>
             <input
               type="email"
               value={email}
@@ -102,7 +104,7 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-foreground/80 mb-2">Password</label>
+            <label className="block text-sm text-foreground/80 mb-2">{t.auth.password}</label>
             <input
               type="password"
               value={password}
@@ -120,13 +122,13 @@ export default function SignupPage() {
               className="mt-1 rounded border-white/20 bg-background/50 text-accent-cyan focus:ring-accent-cyan"
             />
             <span className="text-sm text-foreground/80">
-              I agree to the{' '}
+              {t.auth.agreeTerms}{' '}
               <Link href="/terms" className="text-accent-cyan hover:underline" target="_blank" rel="noopener noreferrer">
-                Terms & Conditions
+                {t.footer.terms}
               </Link>{' '}
-              and{' '}
+              {t.auth.and}{' '}
               <Link href="/privacy" className="text-accent-cyan hover:underline" target="_blank" rel="noopener noreferrer">
-                Privacy Policy
+                {t.footer.privacy}
               </Link>
             </span>
           </label>
@@ -138,7 +140,7 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 transition-colors disabled:opacity-50 font-semibold"
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? t.auth.creatingAccount : t.nav.signUp}
           </button>
         </form>
 
@@ -147,20 +149,20 @@ export default function SignupPage() {
             onClick={() => handleOAuth('google')}
             className="w-full py-3 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-colors flex items-center justify-center gap-2"
           >
-            Continue with Google
+            {t.auth.continueGoogle}
           </button>
           <button
             onClick={() => handleOAuth('github')}
             className="w-full py-3 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-colors flex items-center justify-center gap-2"
           >
-            Continue with GitHub
+            {t.auth.continueGithub}
           </button>
         </div>
 
         <p className="mt-6 text-center text-sm text-foreground/70">
-          Already have an account?{' '}
+          {t.auth.haveAccount}{' '}
           <Link href="/login" className="text-accent-cyan hover:underline">
-            Sign in
+            {t.nav.signIn}
           </Link>
         </p>
       </div>

@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, XCircle, Loader2, User, Mail, Lock, AtSign, Save, ArrowLeft } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, User, Mail, Lock, AtSign, Save, ArrowLeft, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import ManageSubscriptionButton from '@/components/ManageSubscriptionButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
@@ -14,6 +16,7 @@ interface Profile {
   full_name: string | null;
   username: string | null;
   username_updated_at: string | null;
+  subscription_tier?: string | null;
 }
 
 interface Props {
@@ -22,6 +25,7 @@ interface Props {
 }
 
 export default function AccountClient({ profile, userEmail }: Props) {
+  const { t } = useLanguage();
   const [fullName, setFullName] = useState(profile?.full_name ?? '');
   const [username, setUsername] = useState(profile?.username ?? '');
   const [email, setEmail] = useState(userEmail);
@@ -230,6 +234,32 @@ export default function AccountClient({ profile, userEmail }: Props) {
             {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
             {saving ? 'Saving...' : saveSuccess ? '✓ Saved!' : 'Save Changes'}
           </button>
+
+          {/* Subscription Section */}
+          <div className="glass rounded-2xl p-6 border border-white/10">
+            <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <CreditCard size={18} className="text-accent-cyan" />
+              {t.dashboard.subscription}
+            </h2>
+            <p className="text-sm text-foreground/60 mb-4">
+              Manage your plan, payment method, and billing.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium capitalize bg-accent-cyan/20 text-accent-cyan">
+                {profile?.subscription_tier ?? 'free'}
+              </span>
+              {profile?.subscription_tier && profile.subscription_tier !== 'free' ? (
+                <ManageSubscriptionButton />
+              ) : (
+                <Link
+                  href="/pricing"
+                  className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-semibold transition-colors bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30"
+                >
+                  {t.dashboard.upgradePlan}
+                </Link>
+              )}
+            </div>
+          </div>
 
           {/* Password Section */}
           <div className="glass rounded-2xl p-6 border border-white/10">

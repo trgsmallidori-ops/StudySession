@@ -116,7 +116,7 @@ export default function PricingContent() {
           <div
             key={plan.name}
             className={`
-              glass rounded-2xl p-8 border relative
+              glass rounded-2xl p-8 border relative flex flex-col
               ${plan.popular ? 'border-accent-purple/50 shadow-neon-purple' : 'border-white/10'}
             `}
           >
@@ -197,7 +197,7 @@ export default function PricingContent() {
                 {plan.cta}
               </Link>
             )}
-            <p className="text-center text-foreground/50 text-sm mt-3">
+            <p className="mt-auto pt-4 text-center text-xs text-foreground/40">
               {t.pricing.cancelAnytime}
             </p>
           </div>

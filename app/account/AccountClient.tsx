@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, XCircle, Loader2, User, Mail, Lock, AtSign, Save, ArrowLeft, CreditCard } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, User, Mail, Lock, AtSign, Save, ArrowLeft, CreditCard, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import ManageSubscriptionButton from '@/components/ManageSubscriptionButton';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
@@ -17,6 +17,7 @@ interface Profile {
   username: string | null;
   username_updated_at: string | null;
   subscription_tier?: string | null;
+  subscription_id?: string | null;
 }
 
 interface Props {
@@ -38,6 +39,12 @@ export default function AccountClient({ profile, userEmail }: Props) {
   const [passwordSection, setPasswordSection] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteReason, setDeleteReason] = useState<string>('');
+  const [deleteOther, setDeleteOther] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const supabase = createClient();
   const router = useRouter();
@@ -115,6 +122,37 @@ export default function AccountClient({ profile, userEmail }: Props) {
       router.refresh();
     }
     setSaving(false);
+  };
+
+  const handleDeleteAccount = async (skipFeedback: boolean) => {
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      const body: { feedback?: { reason_primary?: string; reason_secondary?: string; reason_other?: string } } = {};
+      if (!skipFeedback && (deleteReason || deleteOther)) {
+        body.feedback = {
+          reason_primary: deleteReason || undefined,
+          reason_other: deleteOther.trim() || undefined,
+        };
+      }
+      const res = await fetch('/api/user/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteError(data.error || 'Failed to delete account');
+        return;
+      }
+      await supabase.auth.signOut();
+      router.push('/');
+      router.refresh();
+    } catch {
+      setDeleteError('Something went wrong');
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const handlePasswordReset = async () => {
@@ -248,7 +286,7 @@ export default function AccountClient({ profile, userEmail }: Props) {
               <span className="inline-block px-3 py-1 rounded-full text-sm font-medium capitalize bg-accent-cyan/20 text-accent-cyan">
                 {profile?.subscription_tier ?? 'free'}
               </span>
-              {profile?.subscription_tier && profile.subscription_tier !== 'free' ? (
+              {(profile?.subscription_id || (profile?.subscription_tier && profile.subscription_tier !== 'free')) ? (
                 <ManageSubscriptionButton />
               ) : (
                 <Link
@@ -291,10 +329,87 @@ export default function AccountClient({ profile, userEmail }: Props) {
           <div className="glass rounded-2xl p-6 border border-red-500/10">
             <h2 className="text-lg font-semibold mb-2 text-red-400">Danger Zone</h2>
             <p className="text-sm text-foreground/60 mb-4">
-              Need to delete your account? Contact us at{' '}
-              <Link href="/contact" className="text-accent-cyan hover:underline">support</Link>.
+              {t.account.deleteAccountDesc}
             </p>
+            <button
+              onClick={() => setDeleteModalOpen(true)}
+              className="px-5 py-2.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition-colors text-sm font-medium flex items-center gap-2"
+            >
+              <Trash2 size={16} />
+              {t.account.deleteAccount}
+            </button>
           </div>
+
+          {/* Delete Account Modal */}
+          {deleteModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <div className="glass rounded-2xl p-6 border border-red-500/20 max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <h2 className="text-xl font-semibold text-red-400 mb-2">{t.account.deleteAccount}</h2>
+                <p className="text-sm text-foreground/60 mb-6">{t.account.deleteAccountDesc}</p>
+
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-foreground/80 mb-3">
+                    {t.account.whyLeaving} <span className="text-foreground/40">{t.account.whyLeavingOptional}</span>
+                  </p>
+                  <div className="space-y-2">
+                    {[
+                      { value: 'not_using', label: t.account.reasonNotUsing },
+                      { value: 'too_expensive', label: t.account.reasonTooExpensive },
+                      { value: 'better_alternative', label: t.account.reasonBetterAlternative },
+                      { value: 'privacy', label: t.account.reasonPrivacy },
+                      { value: 'missing_features', label: t.account.reasonMissingFeatures },
+                      { value: 'technical', label: t.account.reasonTechnical },
+                      { value: 'other', label: t.account.reasonOther },
+                    ].map((opt) => (
+                      <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="deleteReason"
+                          value={opt.value}
+                          checked={deleteReason === opt.value}
+                          onChange={() => setDeleteReason(opt.value)}
+                          className="rounded border-white/20 text-accent-cyan focus:ring-accent-cyan"
+                        />
+                        <span className="text-sm">{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <textarea
+                    placeholder={t.account.anythingElse}
+                    value={deleteOther}
+                    onChange={(e) => setDeleteOther(e.target.value)}
+                    rows={2}
+                    className="w-full mt-3 px-4 py-2 rounded-lg bg-background/50 border border-white/10 text-foreground text-sm focus:border-accent-cyan focus:outline-none resize-none"
+                  />
+                </div>
+
+                {deleteError && <p className="text-red-400 text-sm mb-4">{deleteError}</p>}
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => handleDeleteAccount(true)}
+                    disabled={deleteLoading}
+                    className="flex-1 py-2.5 rounded-lg border border-white/20 hover:bg-white/5 text-foreground/80 text-sm font-medium disabled:opacity-50"
+                  >
+                    {deleteLoading ? t.account.deleting : t.account.skipFeedback}
+                  </button>
+                  <button
+                    onClick={() => handleDeleteAccount(false)}
+                    disabled={deleteLoading}
+                    className="flex-1 py-2.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 text-sm font-semibold disabled:opacity-50"
+                  >
+                    {deleteLoading ? t.account.deleting : t.account.deleteAccountConfirm}
+                  </button>
+                </div>
+                <button
+                  onClick={() => { setDeleteModalOpen(false); setDeleteError(''); setDeleteReason(''); setDeleteOther(''); }}
+                  className="w-full mt-3 py-2 text-foreground/60 hover:text-foreground text-sm"
+                >
+                  {t.general.cancel}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

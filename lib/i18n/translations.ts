@@ -20,6 +20,7 @@ export interface Translations {
   coursePlayer: { backToCourse: string; progress: string; previous: string; next: string; done: string; reviewDay: string; completeDay: string; days: string; day: string; noContent: string; noCourseModules: string; xpEarned: string };
   race: { title: string; subtitle: string; officialRules: string; upcomingRace: string; noActiveRace: string; pastRaces: string; participants: string; prizes: string; typingSpeed: string; xp: string; competitors: string; joining: string; joinChallenge: string; youAreIn: string; leaderboard: string; noParticipants: string; howItWorks: string; termsTitle: string; earnXp: string; xpDesc: string; prizesDesc: string; trackingDesc: string; cancelButton: string; agreeJoin: string; participationNote: string; subscriptionRequired: string; cashPrizes: string; first: string; second: string; third: string; finalScore: string; typingTest: string; practiceRuns: string; finalRun: string; lastPractice: string; submitScore: string; noSubmissions: string; confirmTitle: string; confirmDesc: string; submitting: string; confirm: string };
   general: { loading: string; cancel: string; confirm: string; delete: string; edit: string; save: string; back: string };
+  account: { deleteAccount: string; deleteAccountConfirm: string; deleteAccountDesc: string; whyLeaving: string; whyLeavingOptional: string; reasonNotUsing: string; reasonTooExpensive: string; reasonBetterAlternative: string; reasonPrivacy: string; reasonMissingFeatures: string; reasonTechnical: string; reasonOther: string; anythingElse: string; deleting: string; skipFeedback: string };
 }
 
 const translationsData: Record<Locale, Translations> = {
@@ -388,6 +389,24 @@ const translationsData: Record<Locale, Translations> = {
       save: 'Save',
       back: 'Back',
     },
+    // Account
+    account: {
+      deleteAccount: 'Delete account',
+      deleteAccountConfirm: 'Delete my account',
+      deleteAccountDesc: 'This will permanently delete your account and all your data. This cannot be undone.',
+      whyLeaving: 'Why are you leaving?',
+      whyLeavingOptional: '(optional)',
+      reasonNotUsing: "I'm not using the product anymore",
+      reasonTooExpensive: 'Too expensive',
+      reasonBetterAlternative: 'Found a better alternative',
+      reasonPrivacy: 'Privacy concerns',
+      reasonMissingFeatures: 'Missing features I need',
+      reasonTechnical: 'Technical issues',
+      reasonOther: 'Other',
+      anythingElse: 'Anything else you\'d like to share?',
+      deleting: 'Deleting...',
+      skipFeedback: 'Skip and delete',
+    },
   },
   fr: {
     // Navbar
@@ -753,6 +772,24 @@ const translationsData: Record<Locale, Translations> = {
       edit: 'Modifier',
       save: 'Enregistrer',
       back: 'Retour',
+    },
+    // Account
+    account: {
+      deleteAccount: 'Supprimer le compte',
+      deleteAccountConfirm: 'Supprimer mon compte',
+      deleteAccountDesc: 'Cela supprimera définitivement votre compte et toutes vos données. Cette action est irréversible.',
+      whyLeaving: 'Pourquoi partez-vous ?',
+      whyLeavingOptional: '(optionnel)',
+      reasonNotUsing: "Je n'utilise plus le produit",
+      reasonTooExpensive: 'Trop cher',
+      reasonBetterAlternative: "J'ai trouvé une meilleure alternative",
+      reasonPrivacy: 'Préoccupations de confidentialité',
+      reasonMissingFeatures: 'Fonctionnalités manquantes',
+      reasonTechnical: 'Problèmes techniques',
+      reasonOther: 'Autre',
+      anythingElse: "Autre chose à partager ?",
+      deleting: 'Suppression...',
+      skipFeedback: 'Passer et supprimer',
     },
   },
 };

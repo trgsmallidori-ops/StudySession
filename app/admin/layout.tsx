@@ -36,6 +36,9 @@ export default async function AdminLayout({
         <Link href="/admin/blog" className="text-foreground/80 hover:text-accent-cyan">
           Blog
         </Link>
+        <Link href="/admin/deletion-feedback" className="text-foreground/80 hover:text-accent-cyan">
+          Deletion Feedback
+        </Link>
       </nav>
       {children}
     </div>

@@ -197,6 +197,9 @@ export default function PricingContent() {
                 {plan.cta}
               </Link>
             )}
+            <p className="text-center text-foreground/50 text-sm mt-3">
+              {t.pricing.cancelAnytime}
+            </p>
           </div>
         ))}
       </div>

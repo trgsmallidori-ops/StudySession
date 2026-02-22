@@ -7,7 +7,7 @@ export interface Translations {
   home: { heroTitle1: string; heroTitle2: string; heroSubtitle: string; getStarted: string; viewPlans: string; threeWays: string; excel: string; smartCalendar: string; smartCalendarDesc: string; tryCalendar: string; learnEarnXp: string; learnEarnXpDesc: string; exploreCourses: string; monthlyRace: string; monthlyRaceDesc: string; joinRace: string; gamifiedLearning: string; yourProgress: string; progressDesc: string; startEarning: string; loading: string };
   auth: { signIn: string; createAccount: string; resetPassword: string; email: string; password: string; fullName: string; signingIn: string; creatingAccount: string; sending: string; sendResetLink: string; continueGoogle: string; continueGithub: string; noAccount: string; haveAccount: string; forgotPassword: string; backToLogin: string; checkEmail: string; confirmLink: string; resetLink: string; agreeTerms: string; and: string; mustAgree: string };
   dashboard: { welcomeBack: string; level: string; subscription: string; calendarUploads: string; used: string; freeUploads: string; unlimited: string; xpTotal: string; upgradePlan: string; manageSubscription: string; managingSubscription: string; calendarDesc: string; learnDesc: string; raceDesc: string; planFeatures: { free: string[]; scholar: string[]; champion: string[]; ultimate: string[] } };
-  pricing: { chooseYourPlan: string; subtitle: string; signInToStart: string; needAccount: string; signIn: string; createAccount: string; unlockLearn: string; unlockDesc: string; mostPopular: string; signInToPurchase: string; loading: string; freeTrial: string; plans: { scholar: { name: string; description: string; features: string[]; cta: string }; ultimate: { name: string; description: string; features: string[]; cta: string }; champion: { name: string; description: string; features: string[]; cta: string } } };
+  pricing: { chooseYourPlan: string; subtitle: string; signInToStart: string; needAccount: string; signIn: string; createAccount: string; unlockLearn: string; unlockDesc: string; mostPopular: string; signInToPurchase: string; loading: string; freeTrial: string; cancelAnytime: string; plans: { scholar: { name: string; description: string; features: string[]; cta: string }; ultimate: { name: string; description: string; features: string[]; cta: string }; champion: { name: string; description: string; features: string[]; cta: string } } };
   contact: { title: string; subtitle: string; name: string; email: string; message: string; send: string; successTitle: string; successMessage: string; failedToSend: string; validation: { nameRequired: string; emailRequired: string; messageMin: string } };
   blog: { title: string; noPosts: string; poweredBy: string };
   calendar: { title: string; addClass: string; clearCalendar: string; clearing: string; uploadSyllabus: string; importOutline: string; editClass: string; newClass: string; yourClasses: string; filteringBy: string; filteringByPlural: string; clickToFilter: string; showAll: string; noClasses: string; loading: string; confirmClear: string; edit: string; delete: string; uploadsUsed: string; dropOutline: string; uploadHint: string; invalidFile: string; fileTooLarge: string; parseFailed: string };
@@ -145,6 +145,7 @@ const translationsData: Record<Locale, Translations> = {
       signInToPurchase: 'Sign in to purchase',
       loading: 'Loading...',
       freeTrial: 'All plans include a free trial. Cancel anytime.',
+      cancelAnytime: 'Cancel at anytime.',
       plans: {
         scholar: {
           name: 'Scholar',
@@ -510,6 +511,7 @@ const translationsData: Record<Locale, Translations> = {
       signInToPurchase: 'Se connecter pour acheter',
       loading: 'Chargement...',
       freeTrial: 'Tous les plans incluent un essai gratuit. Annulez à tout moment.',
+      cancelAnytime: 'Annulez à tout moment.',
       plans: {
         scholar: {
           name: 'Scholar',

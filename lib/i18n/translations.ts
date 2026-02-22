@@ -62,9 +62,9 @@ const translationsData: Record<Locale, Translations> = {
     },
     // Homepage
     home: {
-      heroTitle1: 'Level Up Your',
-      heroTitle2: 'Learning Journey',
-      heroSubtitle: 'AI-powered calendar parsing, gamified courses with XP & achievements, and monthly skill-based competitions. Your productivity, supercharged.',
+      heroTitle1: 'Parse. Learn.',
+      heroTitle2: 'Earn.',
+      heroSubtitle: 'Learn new skills. Compete and earn money. Parse your syllabus into an export-ready calendar.',
       getStarted: 'Get Started Free',
       viewPlans: 'View Plans',
       threeWays: 'Three Ways to',
@@ -447,9 +447,9 @@ const translationsData: Record<Locale, Translations> = {
     },
     // Homepage
     home: {
-      heroTitle1: 'Passez au Niveau',
-      heroTitle2: 'Supérieur',
-      heroSubtitle: 'Analyse de calendrier par IA, cours gamifiés avec XP & succès, et compétitions mensuelles basées sur les compétences. Votre productivité, décuplée.',
+      heroTitle1: 'Analysez. Apprenez.',
+      heroTitle2: 'Gagnez.',
+      heroSubtitle: 'Apprenez de nouvelles compétences. Compétez et gagnez de l\'argent. Téléchargez votre programme pour un calendrier exportable.',
       getStarted: 'Commencer gratuitement',
       viewPlans: 'Voir les plans',
       threeWays: 'Trois façons d\'',

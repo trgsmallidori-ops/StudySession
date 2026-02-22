@@ -13,21 +13,34 @@ async function getProfile(userId: string) {
   return data;
 }
 
+function getCanonicalUrl(path: string): string {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://studysession.com";
+  const base = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
+  return `${base}${path}`;
+}
+
 export const metadata = {
-  title: "Calendar",
+  title: "AI Calendar — Syllabus Parser & Study Schedule",
   description:
-    "Plan classes and events with a clean, color-coded calendar for students.",
+    "Upload your course outline and let AI extract tests, assignments, and class schedules. Color-coded academic calendar and syllabus parser for students.",
   keywords: [
-    "calendar",
-    "student planner",
+    "AI calendar",
+    "course calendar",
+    "syllabus parser",
+    "academic schedule",
     "class schedule",
+    "study schedule",
+    "student planner",
     "course schedule",
-    "student calendar",
+    "academic calendar",
   ],
+  alternates: { canonical: getCanonicalUrl("/calendar") },
   openGraph: {
-    title: "Calendar | StudySession",
+    title: "AI Calendar — Syllabus Parser & Study Schedule | StudySession",
     description:
-      "Plan classes and events with a clean, color-coded calendar for students.",
+      "Upload your course outline and let AI extract tests, assignments, and class schedules. Color-coded academic calendar.",
+    url: "/calendar",
+    images: ["/og-image.png"],
   },
 };
 

@@ -1,25 +1,37 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import LearnPageClient from './LearnPageClient';
+import CoursesJsonLd from '@/components/CoursesJsonLd';
 import { isAdmin } from '@/lib/isAdmin';
 
+function getCanonicalUrl(path: string): string {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://studysession.com";
+  const base = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
+  return `${base}${path}`;
+}
+
 export const metadata = {
-  title: "Learn & Earn XP — Courses",
+  title: "Learn & Earn XP — Online Courses",
   description:
-    "Complete gamified courses, ace quizzes, unlock achievements, and track your progress with XP. Level up your learning.",
+    "Complete gamified online courses, ace quizzes, unlock achievements, and track your progress with XP. E-learning platform for students and learners.",
   keywords: [
-    "learn",
-    "courses",
     "online courses",
-    "gamified learning",
+    "e-learning",
+    "gamified courses",
+    "learn online",
+    "educational courses",
     "XP",
     "achievements",
-    "educational courses",
+    "course catalog",
+    "study courses",
   ],
+  alternates: { canonical: getCanonicalUrl("/learn") },
   openGraph: {
-    title: "Learn & Earn XP — Courses | StudySession",
+    title: "Learn & Earn XP — Online Courses | StudySession",
     description:
-      "Complete gamified courses, ace quizzes, unlock achievements, and track your progress with XP.",
+      "Complete gamified online courses, ace quizzes, unlock achievements, and track your progress with XP.",
+    url: "/learn",
+    images: ["/og-image.png"],
   },
 };
 
@@ -81,13 +93,16 @@ export default async function LearnPage() {
   const activeRacePeriodId = activePeriods?.[0]?.id ?? null;
 
   return (
-    <LearnPageClient
-      courses={courses ?? []}
-      myCourses={myCourses ?? []}
-      enrollmentMap={Object.fromEntries(enrollmentMap)}
-      totalXP={profile?.total_xp ?? 0}
-      userId={user.id}
-      activeRacePeriodId={activeRacePeriodId}
-    />
+    <>
+      <CoursesJsonLd courses={courses ?? []} />
+      <LearnPageClient
+        courses={courses ?? []}
+        myCourses={myCourses ?? []}
+        enrollmentMap={Object.fromEntries(enrollmentMap)}
+        totalXP={profile?.total_xp ?? 0}
+        userId={user.id}
+        activeRacePeriodId={activeRacePeriodId}
+      />
+    </>
   );
 }

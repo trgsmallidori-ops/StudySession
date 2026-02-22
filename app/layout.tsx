@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import SiteJsonLd from "@/components/SiteJsonLd";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 const geistSans = localFont({
@@ -28,18 +29,16 @@ export const metadata: Metadata = {
   description:
     "Level up your productivity with AI-powered calendar parsing, gamified courses with XP & achievements, and monthly competitions. The smart AI calendar for students and learners.",
   keywords: [
-    "AI calendar",
-    "smart calendar",
-    "calendar",
-    "learn",
-    "courses",
-    "gamified learning",
     "online courses",
-    "productivity",
-    "XP",
-    "achievements",
-    "course schedule",
-    "AI schedule",
+    "AI calendar",
+    "syllabus",
+    "study schedule",
+    "course calendar",
+    "academic calendar",
+    "gamified learning",
+    "learning management",
+    "schedule maker",
+    "student planner",
   ],
   openGraph: {
     title: "StudySession - AI Calendar, Gamified Learning & Courses",
@@ -48,6 +47,7 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "StudySession",
     type: "website",
+    images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
@@ -71,6 +71,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <SiteJsonLd />
         <LanguageProvider>
           <Navbar />
           <main className="flex-1 flex flex-col min-h-0">{children}</main>

@@ -1,24 +1,32 @@
 import { createClient } from '@/lib/supabase/server';
 import BlogClient from './BlogClient';
 
+function getCanonicalUrl(path: string): string {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://studysession.com";
+  const base = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
+  return `${base}${path}`;
+}
+
 export const metadata = {
-  title: "Blog — Tips, Updates & Learning Insights",
+  title: "Blog — Study Tips, Learning Strategies & Productivity",
   description:
-    "The StudySession Blog: productivity tips, AI calendar insights, gamified learning updates, and course recommendations. Created by Spaxio.",
+    "Study tips, learning strategies, productivity for students, AI calendar insights, and gamified learning updates. Created by Spaxio.",
   keywords: [
-    "blog",
-    "productivity",
+    "study tips",
+    "learning strategies",
+    "productivity for students",
     "AI calendar",
-    "learn",
-    "courses",
     "gamified learning",
-    "Spaxio",
-    "StudySession",
+    "online courses blog",
+    "student productivity",
   ],
+  alternates: { canonical: getCanonicalUrl("/blog") },
   openGraph: {
-    title: "StudySession Blog — Tips, Updates & Learning Insights",
+    title: "StudySession Blog — Study Tips & Learning Insights",
     description:
-      "Productivity tips, AI calendar insights, and gamified learning updates. Created by Spaxio.",
+      "Study tips, learning strategies, productivity for students, and gamified learning updates.",
+    url: "/blog",
+    images: ["/og-image.png"],
   },
 };
 

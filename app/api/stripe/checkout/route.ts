@@ -31,6 +31,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid price' }, { status: 400 });
   }
 
+  // Vercel sets this header automatically based on the visitor's IP
+  const country =
+    request.headers.get('x-vercel-ip-country') ??
+    request.headers.get('cf-ipcountry') ??
+    '';
+  const currency = country === 'US' ? 'usd' : undefined;
+
   try {
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -40,6 +47,7 @@ export async function POST(request: Request) {
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?canceled=true`,
       customer_email: user.email ?? undefined,
+      ...(currency ? { currency } : {}),
       metadata: {
         user_id: user.id,
         tier,

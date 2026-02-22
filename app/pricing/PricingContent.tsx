@@ -75,6 +75,12 @@ export default function PricingContent() {
         <p className="text-foreground/70 text-lg">
           {t.pricing.subtitle}
         </p>
+        <div className="mt-6 p-4 rounded-xl border border-accent-purple/40 bg-accent-purple/10 text-center max-w-2xl mx-auto">
+          <p className="font-semibold text-accent-purple mb-1">{t.pricing.raceEligibility}</p>
+          <p className="text-foreground/70 text-sm">
+            {t.pricing.raceEligibilityDetail}
+          </p>
+        </div>
       </div>
 
       {feature === 'learn' && (

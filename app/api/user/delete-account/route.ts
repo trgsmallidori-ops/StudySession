@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { apiError } from '@/lib/api-error';
+import { notifySecurityWebhook } from '@/lib/webhooks/security';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
@@ -12,7 +14,13 @@ const getStripe = () => {
 export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) {
+    return apiError('Unauthorized', {
+      status: 401,
+      code: 'UNAUTHORIZED',
+      securityEvent: { type: 'auth_failed', message: 'Delete account attempted without auth', path: '/api/user/delete-account' },
+    });
+  }
 
   let feedback: { reason_primary?: string; reason_secondary?: string; reason_other?: string } | null = null;
   try {
@@ -64,11 +72,15 @@ export async function POST(request: Request) {
 
   if (error) {
     console.error('Delete user error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to delete account' },
-      { status: 500 }
-    );
+    return apiError(error.message || 'Failed to delete account', { status: 500, code: 'INTERNAL' });
   }
+
+  await notifySecurityWebhook({
+    type: 'account_deleted',
+    message: 'User account deleted',
+    path: '/api/user/delete-account',
+    userId: user.id,
+  });
 
   return NextResponse.json({ success: true });
 }

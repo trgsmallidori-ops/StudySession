@@ -49,6 +49,17 @@ Open [http://localhost:3000](http://localhost:3000).
 - `lib/` - Utilities, Supabase clients, database types
 - `supabase/migrations/` - Database schema
 
+## Webhooks & error handling
+
+- **Stripe webhook**  
+  Set `STRIPE_WEBHOOK_SECRET` (from Stripe Dashboard → Developers → Webhooks). Endpoint: `POST /api/stripe/webhook`. Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`. Signature is verified; failed processing returns a generic error so internal details are not leaked.
+
+- **Security / audit webhook (optional)**  
+  Set `SECURITY_WEBHOOK_URL` to a URL that accepts `POST` JSON (e.g. Slack, Discord, or your own endpoint). The app will send events such as failed auth, forbidden access, and account deletions. Payload shape: `{ type, message, path?, userId?, context?, timestamp, source: "studysession" }`. Omit or leave unset to disable.
+
+- **App error handling**  
+  The app uses `app/error.tsx` (recoverable errors), `app/global-error.tsx` (root-level crashes), and `app/not-found.tsx` (404). API routes can use `apiError()` from `@/lib/api-error` for consistent JSON responses and optional security event notifications.
+
 ## Deployment (Vercel)
 
 1. Connect your GitHub repo to Vercel

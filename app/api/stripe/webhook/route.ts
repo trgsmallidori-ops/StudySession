@@ -41,6 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
+  // Handler is idempotent: same event processed twice (e.g. Stripe retry) yields same DB state.
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -115,7 +116,8 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error('Webhook handler error:', error);
-    return NextResponse.json({ error: 'Handler failed' }, { status: 500 });
+    // Return generic message so we don't leak internal details to callers.
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });

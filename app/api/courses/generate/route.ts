@@ -61,17 +61,23 @@ export async function POST(request: Request) {
       .single();
 
     const tier = profile?.subscription_tier ?? 'free';
-    const hasAccess = tier === 'champion' || tier === 'ultimate' || isAdmin(user);
+    const hasFullAccess = tier === 'champion' || tier === 'ultimate' || isAdmin(user);
 
-    if (!hasAccess) {
-      return NextResponse.json(
-        { error: 'Champion subscription required' },
-        { status: 403 }
-      );
+    if (!hasFullAccess && tier === 'free') {
+      const { count } = await supabase
+        .from('courses')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', user.id);
+      if ((count ?? 0) >= 1) {
+        return NextResponse.json(
+          { error: 'Upgrade to create more courses.', upgradeRequired: true },
+          { status: 403 }
+        );
+      }
     }
 
     const COURSE_GENERATIONS_PER_DAY = 3;
-    if (!isAdmin(user)) {
+    if (!isAdmin(user) && hasFullAccess) {
       const todayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
       const { count } = await supabase
         .from('courses')

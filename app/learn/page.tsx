@@ -50,11 +50,7 @@ export default async function LearnPage() {
     .single();
 
   const tier = profile?.subscription_tier ?? 'free';
-  const hasAccess = tier === 'champion' || tier === 'ultimate' || isAdmin(user);
-
-  if (!hasAccess) {
-    redirect('/pricing?feature=learn');
-  }
+  const hasFullAccess = tier === 'champion' || tier === 'ultimate' || isAdmin(user);
 
   const { data: courses } = await supabase
     .from('courses')
@@ -92,6 +88,9 @@ export default async function LearnPage() {
 
   const activeRacePeriodId = activePeriods?.[0]?.id ?? null;
 
+  const freeCourseLimit = 1;
+  const canCreateMoreCourses = hasFullAccess || (tier === 'free' && (myCourses?.length ?? 0) < freeCourseLimit);
+
   return (
     <>
       <CoursesJsonLd courses={courses ?? []} />
@@ -102,6 +101,8 @@ export default async function LearnPage() {
         totalXP={profile?.total_xp ?? 0}
         userId={user.id}
         activeRacePeriodId={activeRacePeriodId}
+        canCreateMoreCourses={canCreateMoreCourses}
+        courseLimitReached={tier === 'free' && (myCourses?.length ?? 0) >= freeCourseLimit}
       />
     </>
   );

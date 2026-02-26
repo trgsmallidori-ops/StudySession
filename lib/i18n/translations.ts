@@ -10,12 +10,12 @@ export interface Translations {
   pricing: { chooseYourPlan: string; subtitle: string; raceEligibility: string; raceEligibilityDetail: string; signInToStart: string; needAccount: string; signIn: string; createAccount: string; unlockLearn: string; unlockDesc: string; mostPopular: string; signInToPurchase: string; loading: string; freeTrial: string; cancelAnytime: string; plans: { scholar: { name: string; description: string; features: string[]; cta: string }; champion: { name: string; description: string; features: string[]; cta: string } } };
   contact: { title: string; subtitle: string; name: string; email: string; message: string; send: string; successTitle: string; successMessage: string; failedToSend: string; validation: { nameRequired: string; emailRequired: string; messageMin: string } };
   blog: { title: string; noPosts: string; poweredBy: string };
-  calendar: { title: string; addClass: string; clearCalendar: string; clearing: string; uploadSyllabus: string; importOutline: string; editClass: string; newClass: string; yourClasses: string; filteringBy: string; filteringByPlural: string; clickToFilter: string; showAll: string; noClasses: string; loading: string; confirmClear: string; edit: string; delete: string; uploadsUsed: string; dropOutline: string; uploadHint: string; invalidFile: string; fileTooLarge: string; parseFailed: string };
+  calendar: { title: string; addClass: string; clearCalendar: string; clearing: string; uploadSyllabus: string; importOutline: string; editClass: string; newClass: string; yourClasses: string; filteringBy: string; filteringByPlural: string; clickToFilter: string; showAll: string; noClasses: string; loading: string; confirmClear: string; edit: string; delete: string; uploadsUsed: string; dropOutline: string; uploadHint: string; invalidFile: string; fileTooLarge: string; parseFailed: string; uploadLimitReached: string; upgradeToAddMore: string };
   classForm: { className: string; color: string; daysOfWeek: string; startTime: string; endTime: string; placeholder: string; saving: string; update: string; create: string; cancel: string; nameRequired: string; invalidColor: string };
   eventModal: { editEvent: string; newEvent: string; title: string; dateTime: string; type: string; class: string; color: string; description: string; titlePlaceholder: string; descriptionPlaceholder: string; none: string; test: string; assignment: string; lecture: string; other: string; saving: string; update: string; create: string; cancel: string; delete: string; confirmDelete: string; titleRequired: string; dateRequired: string };
   chatbot: { title: string; placeholder: string; inputPlaceholder: string; thinking: string; openAssistant: string; closeChat: string; close: string; generateCourse: string; error: string };
-  learn: { title: string; subtitle: string; leaderboard: string; globalXp: string; raceLeaderboard: string; all: string; beginner: string; intermediate: string; advanced: string; generateCourse: string; myCourses: string; allCourses: string; noCourses: string; noUsers: string; noParticipants: string; noDescription: string; days: string; xp: string; complete: string };
-  generateCourse: { title: string; topicLabel: string; testTopicLabel: string; topicPlaceholder: string; courseLength: string; difficulty: string; topicError: string; generating: string; almostThere: string; buildingCourse: string; generateButton: string; failed: string; tryAgain: string };
+  learn: { title: string; subtitle: string; leaderboard: string; globalXp: string; raceLeaderboard: string; all: string; beginner: string; intermediate: string; advanced: string; generateCourse: string; myCourses: string; allCourses: string; noCourses: string; noUsers: string; noParticipants: string; noDescription: string; days: string; xp: string; complete: string; courseLimitReached: string; upgradeToCreateMore: string };
+  generateCourse: { title: string; topicLabel: string; testTopicLabel: string; topicPlaceholder: string; courseLength: string; difficulty: string; topicError: string; generating: string; almostThere: string; buildingCourse: string; generateButton: string; failed: string; tryAgain: string; upgradeRequired: string };
   courseDetail: { progress: string; continueCourse: string; startCourse: string; enrolling: string; enrollNow: string; edit: string; modules: string; noModules: string };
   coursePlayer: { backToCourse: string; progress: string; previous: string; next: string; done: string; reviewDay: string; completeDay: string; days: string; day: string; noContent: string; noCourseModules: string; xpEarned: string };
   race: { title: string; subtitle: string; officialRules: string; upcomingRace: string; noActiveRace: string; pastRaces: string; participants: string; prizes: string; typingSpeed: string; xp: string; competitors: string; joining: string; joinChallenge: string; youAreIn: string; leaderboard: string; noParticipants: string; howItWorks: string; termsTitle: string; earnXp: string; xpDesc: string; prizesDesc: string; trackingDesc: string; cancelButton: string; agreeJoin: string; participationNote: string; subscriptionRequired: string; cashPrizes: string; first: string; second: string; third: string; finalScore: string; typingTest: string; practiceRuns: string; finalRun: string; lastPractice: string; submitScore: string; noSubmissions: string; confirmTitle: string; confirmDesc: string; submitting: string; confirm: string };
@@ -210,6 +210,8 @@ const translationsData: Record<Locale, Translations> = {
       edit: 'Edit',
       delete: 'Delete',
       uploadsUsed: '{n} / {limit} uploads used',
+      uploadLimitReached: "You've used your 2 free syllabus uploads.",
+      upgradeToAddMore: 'Upgrade to add more.',
       dropOutline: 'Drop your course outline here or click to upload',
       uploadHint: 'PDF, TXT, or Word (.docx), max 10MB. AI will extract tests, assignments, and schedule.',
       invalidFile: 'Please upload a PDF, TXT, or Word document',
@@ -290,6 +292,8 @@ const translationsData: Record<Locale, Translations> = {
       days: '{n} days',
       xp: '{n} XP',
       complete: '{n}% complete',
+      courseLimitReached: "You've created your free course.",
+      upgradeToCreateMore: 'Upgrade to create more courses.',
     },
     // Course Generation
     generateCourse: {
@@ -306,6 +310,7 @@ const translationsData: Record<Locale, Translations> = {
       generateButton: 'Generate Course',
       failed: 'Failed to generate course',
       tryAgain: 'Something went wrong. Please try again.',
+      upgradeRequired: 'Upgrade to create more courses.',
     },
     // Course Detail
     courseDetail: {
@@ -592,6 +597,8 @@ const translationsData: Record<Locale, Translations> = {
       edit: 'Modifier',
       delete: 'Supprimer',
       uploadsUsed: '{n} / {limit} téléchargements utilisés',
+      uploadLimitReached: 'Vous avez utilisé vos 2 téléchargements de programmes gratuits.',
+      upgradeToAddMore: 'Passez à une offre supérieure pour en ajouter plus.',
       dropOutline: 'Déposez votre programme de cours ici ou cliquez pour télécharger',
       uploadHint: 'PDF, TXT ou Word (.docx), max 10 Mo. L\'IA extraira les tests, devoirs et emplois du temps.',
       invalidFile: 'Veuillez télécharger un fichier PDF, TXT ou Word',
@@ -672,6 +679,8 @@ const translationsData: Record<Locale, Translations> = {
       days: '{n} jours',
       xp: '{n} XP',
       complete: '{n}% complété',
+      courseLimitReached: 'Vous avez créé votre cours gratuit.',
+      upgradeToCreateMore: 'Passez à une offre supérieure pour créer plus de cours.',
     },
     // Course Generation
     generateCourse: {
@@ -688,6 +697,7 @@ const translationsData: Record<Locale, Translations> = {
       generateButton: 'Générer le cours',
       failed: 'Échec de la génération du cours',
       tryAgain: 'Une erreur s\'est produite. Veuillez réessayer.',
+      upgradeRequired: 'Passez à une offre supérieure pour créer plus de cours.',
     },
     // Course Detail
     courseDetail: {

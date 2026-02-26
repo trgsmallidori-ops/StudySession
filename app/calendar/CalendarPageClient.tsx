@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, X, Filter, Trash2, Upload } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, X, Filter, Trash2, Upload, Sparkles } from 'lucide-react';
 import CalendarView from '@/components/calendar/CalendarView';
 import ClassForm from '@/components/calendar/ClassForm';
 import GenerateCourseModal from '@/components/learn/GenerateCourseModal';
@@ -45,6 +46,7 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [importingOutline, setImportingOutline] = useState(false);
   const [showUploadSection, setShowUploadSection] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const fetchEvents = useCallback(async () => {
     const start = dateRange.start || subMonths(new Date(), 1).toISOString();
@@ -275,8 +277,42 @@ export default function CalendarPageClient({ uploadsUsed = 0, uploadLimit = 999,
             onParsed={handleParsedOutline}
             uploadsUsed={uploadsUsed}
             uploadLimit={uploadLimit}
-            onLimitReached={() => setShowUploadSection(false)}
+            onLimitReached={() => {
+              setShowUpgradeModal(true);
+            }}
           />
+        </div>
+      )}
+
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowUpgradeModal(false)}
+            aria-hidden
+          />
+          <div className="relative glass rounded-2xl border border-accent-cyan/30 p-6 w-full max-w-md shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Sparkles className="text-accent-cyan" size={22} />
+                {t.calendar.uploadLimitReached}
+              </h3>
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-foreground/80 mb-6">{t.calendar.upgradeToAddMore}</p>
+            <Link
+              href="/pricing"
+              className="block w-full py-3 rounded-lg bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/50 hover:bg-accent-cyan/30 font-semibold text-center transition-colors"
+            >
+              {t.dashboard.upgradePlan}
+            </Link>
+          </div>
         </div>
       )}
 

@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Trash2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function CreateCourseClient() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [durationDays, setDurationDays] = useState(7);
@@ -16,6 +18,8 @@ export default function CreateCourseClient() {
     { title: 'Introduction', content: '' },
   ]);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [upgradeRequired, setUpgradeRequired] = useState(false);
 
   const addModule = () => {
     setModules((m) => [...m, { title: `Module ${m.length + 1}`, content: '' }]);
@@ -36,6 +40,8 @@ export default function CreateCourseClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSubmitError(null);
+    setUpgradeRequired(false);
 
     const res = await fetch('/api/courses', {
       method: 'POST',
@@ -49,12 +55,20 @@ export default function CreateCourseClient() {
       }),
     });
 
+    const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
       setLoading(false);
+      if (res.status === 403 && data.upgradeRequired) {
+        setUpgradeRequired(true);
+        setSubmitError(t.learn.upgradeToCreateMore);
+      } else {
+        setSubmitError(data.error ?? 'Failed to create course');
+      }
       return;
     }
 
-    const course = await res.json();
+    const course = data;
 
     for (let i = 0; i < modules.length; i++) {
       await fetch(`/api/courses/${course.id}/modules`, {
@@ -83,6 +97,20 @@ export default function CreateCourseClient() {
           ← Back to Learn
         </Link>
       </div>
+
+      {submitError && (
+        <div className="mb-6 p-4 rounded-xl border border-accent-pink/40 bg-accent-pink/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-foreground/90">{submitError}</p>
+          {upgradeRequired && (
+            <Link
+              href="/pricing?feature=learn"
+              className="shrink-0 px-4 py-2 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 font-semibold text-center"
+            >
+              {t.dashboard.upgradePlan}
+            </Link>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="glass rounded-xl p-6 border border-accent-pink/20">

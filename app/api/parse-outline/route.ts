@@ -208,14 +208,7 @@ export async function POST(request: Request) {
       calendarUploadsYear = currentYear;
     }
 
-    const canUseAI = admin || tier === 'scholar';
-    if (!canUseAI) {
-      return NextResponse.json(
-        { error: 'Upgrade to Scholar to use AI syllabus parsing', code: 'AI_TIER_REQUIRED' },
-        { status: 403 }
-      );
-    }
-
+    // Free: 2 uploads; Scholar: 30/year. Both can use AI parsing.
     if (!admin && tier === 'free' && uploadsUsed >= 2) {
       return NextResponse.json({ error: 'Upload limit reached', limitReached: true }, { status: 403 });
     }

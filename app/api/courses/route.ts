@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { isAdmin } from '@/lib/isAdmin';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -30,6 +31,26 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { data: profile } = await supabase
+    .from('users')
+    .select('subscription_tier')
+    .eq('id', user.id)
+    .single();
+  const tier = profile?.subscription_tier ?? 'free';
+  const hasFullAccess = tier === 'champion' || tier === 'ultimate' || isAdmin(user);
+  if (!hasFullAccess && tier === 'free') {
+    const { count } = await supabase
+      .from('courses')
+      .select('*', { count: 'exact', head: true })
+      .eq('creator_id', user.id);
+    if ((count ?? 0) >= 1) {
+      return NextResponse.json(
+        { error: 'Upgrade to create more courses.', upgradeRequired: true },
+        { status: 403 }
+      );
+    }
+  }
 
   const body = await request.json();
   const { title, description, duration_days, difficulty, total_xp_reward, thumbnail_url } = body;

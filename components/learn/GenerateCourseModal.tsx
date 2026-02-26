@@ -12,6 +12,7 @@ interface GenerateCourseModalProps {
   onClose: () => void;
   initialTopic?: string;
   fromTests?: boolean;
+  onUpgradeRequired?: () => void;
 }
 
 const DURATIONS = [3, 4, 7, 10] as const;
@@ -21,6 +22,7 @@ export default function GenerateCourseModal({
   onClose,
   initialTopic = '',
   fromTests = false,
+  onUpgradeRequired,
 }: GenerateCourseModalProps) {
   const [topic, setTopic] = useState(initialTopic);
   const [durationDays, setDurationDays] = useState<number>(7);
@@ -77,7 +79,12 @@ export default function GenerateCourseModal({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? t.generateCourse.failed);
+        if (res.status === 403 && data.upgradeRequired) {
+          onUpgradeRequired?.();
+          setError(t.generateCourse.upgradeRequired);
+        } else {
+          setError(data.error ?? t.generateCourse.failed);
+        }
         return;
       }
 

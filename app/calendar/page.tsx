@@ -75,7 +75,7 @@ export default async function CalendarPage() {
   const uploadLimit =
     tier === 'free' ? 2 : tier === 'scholar' ? SCHOLAR_UPLOAD_LIMIT : 999;
   const admin = isAdmin(user);
-  const canUseAI = admin || tier === 'scholar';
+  const canUseAI = true; // Free: 2 uploads, Scholar: 30/year (enforced in API)
   const canGenerateStudyCourse = admin || tier === 'champion' || tier === 'ultimate';
 
   return (

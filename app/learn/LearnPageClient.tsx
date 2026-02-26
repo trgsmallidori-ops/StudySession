@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { X, Sparkles, Trophy, ChevronDown, ChevronUp } from 'lucide-react';
 import CourseCard from '@/components/learn/CourseCard';
 import XPBar from '@/components/learn/XPBar';
 import GenerateCourseModal from '@/components/learn/GenerateCourseModal';
 import { Course } from '@/lib/database.types';
-import { Trophy, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface GlobalLeaderboardEntry {
@@ -30,6 +30,8 @@ interface LearnPageClientProps {
   totalXP: number;
   userId?: string;
   activeRacePeriodId?: string | null;
+  canCreateMoreCourses?: boolean;
+  courseLimitReached?: boolean;
 }
 
 export default function LearnPageClient({
@@ -39,12 +41,15 @@ export default function LearnPageClient({
   totalXP,
   userId,
   activeRacePeriodId,
+  canCreateMoreCourses = true,
+  courseLimitReached = false,
 }: LearnPageClientProps) {
   const [courses] = useState(initialCourses);
   const [myCourses] = useState(initialMyCourses);
   const [filter, setFilter] = useState<string>('all');
   const { t } = useLanguage();
   const [modalOpen, setModalOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState<'global' | 'race'>('global');
   const [leaderboardExpanded, setLeaderboardExpanded] = useState(true);
   const [globalLeaderboard, setGlobalLeaderboard] = useState<GlobalLeaderboardEntry[]>([]);
@@ -181,7 +186,13 @@ export default function LearnPageClient({
         ))}
         </div>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={() => {
+            if (courseLimitReached || !canCreateMoreCourses) {
+              setShowUpgradeModal(true);
+            } else {
+              setModalOpen(true);
+            }
+          }}
           className="px-4 py-2 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 font-semibold"
         >
           {t.learn.generateCourse}
@@ -223,7 +234,43 @@ export default function LearnPageClient({
       <GenerateCourseModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
+        onUpgradeRequired={() => {
+          setModalOpen(false);
+          setShowUpgradeModal(true);
+        }}
       />
+
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowUpgradeModal(false)}
+            aria-hidden
+          />
+          <div className="relative glass rounded-2xl border border-accent-pink/30 p-6 w-full max-w-md shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Sparkles className="text-accent-pink" size={22} />
+                {t.learn.courseLimitReached}
+              </h3>
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-foreground/80 mb-6">{t.learn.upgradeToCreateMore}</p>
+            <Link
+              href="/pricing?feature=learn"
+              className="block w-full py-3 rounded-lg bg-accent-pink/20 text-accent-pink border border-accent-pink/50 hover:bg-accent-pink/30 font-semibold text-center transition-colors"
+            >
+              {t.dashboard.upgradePlan}
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

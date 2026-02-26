@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
@@ -21,6 +21,7 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const { t } = useLanguage();
 
@@ -61,13 +62,20 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName, username: username.trim().toLowerCase() } },
     });
 
     if (error) { setError(error.message); setLoading(false); return; }
+
+    // When "Confirm email" is disabled in Supabase, a session is returned and user is already signed in
+    if (data.session) {
+      router.refresh();
+      router.push(searchParams.get('next') || '/dashboard');
+      return;
+    }
 
     setSuccess(true);
     setLoading(false);

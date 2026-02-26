@@ -31,8 +31,9 @@ cp .env.example .env.local
 1. Create a new project at [supabase.com](https://supabase.com)
 2. Run the migration in `supabase/migrations/001_initial_schema.sql` in the SQL Editor
 3. Enable Email and OAuth providers (Google, GitHub) in Authentication settings
-4. Create Storage buckets: `course-outlines` and `course-thumbnails`
-5. Add your Supabase URL and anon key to `.env.local`
+4. **To skip email confirmation** (e.g. if using Gmail SMTP and emails are blocked): Authentication → Providers → Email → turn **off** "Confirm email". New users will be signed in immediately without a confirmation link.
+5. Create Storage buckets: `course-outlines` and `course-thumbnails`
+6. Add your Supabase URL and anon key to `.env.local`
 
 ### 4. Run the development server
 

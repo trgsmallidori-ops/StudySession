@@ -185,26 +185,45 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const SCHOLAR_UPLOAD_LIMIT = 30;
+    const currentYear = new Date().getFullYear();
+
     const { data: profile } = await supabase
       .from('users')
-      .select('subscription_tier, calendar_uploads_used')
+      .select('subscription_tier, calendar_uploads_used, calendar_uploads_year')
       .eq('id', user.id)
       .single();
 
     const tier = profile?.subscription_tier ?? 'free';
     const admin = isAdmin(user);
-    const uploadsUsed = profile?.calendar_uploads_used ?? 0;
+    let uploadsUsed = profile?.calendar_uploads_used ?? 0;
+    let calendarUploadsYear = profile?.calendar_uploads_year ?? null;
 
-    const canUseAI = admin || tier === 'scholar' || tier === 'ultimate';
+    if (!admin && tier === 'scholar' && (calendarUploadsYear === null || calendarUploadsYear !== currentYear)) {
+      await supabase
+        .from('users')
+        .update({ calendar_uploads_used: 0, calendar_uploads_year: currentYear })
+        .eq('id', user.id);
+      uploadsUsed = 0;
+      calendarUploadsYear = currentYear;
+    }
+
+    const canUseAI = admin || tier === 'scholar';
     if (!canUseAI) {
       return NextResponse.json(
-        { error: 'Upgrade to Scholar or Ultimate to use AI syllabus parsing', code: 'AI_TIER_REQUIRED' },
+        { error: 'Upgrade to Scholar to use AI syllabus parsing', code: 'AI_TIER_REQUIRED' },
         { status: 403 }
       );
     }
 
     if (!admin && tier === 'free' && uploadsUsed >= 2) {
       return NextResponse.json({ error: 'Upload limit reached', limitReached: true }, { status: 403 });
+    }
+    if (!admin && tier === 'scholar' && uploadsUsed >= SCHOLAR_UPLOAD_LIMIT) {
+      return NextResponse.json(
+        { error: 'Annual upload limit reached (30 per year). Resets each year.', limitReached: true },
+        { status: 403 }
+      );
     }
 
     const formData = await request.formData();
@@ -295,8 +314,14 @@ ${text.slice(0, 12000)}`,
       },
     };
 
-    if (!admin && tier === 'free') {
-      await supabase.from('users').update({ calendar_uploads_used: uploadsUsed + 1 }).eq('id', user.id);
+    if (!admin && (tier === 'free' || tier === 'scholar')) {
+      await supabase
+        .from('users')
+        .update({
+          calendar_uploads_used: uploadsUsed + 1,
+          ...(tier === 'scholar' ? { calendar_uploads_year: currentYear } : {}),
+        })
+        .eq('id', user.id);
     }
 
     return NextResponse.json(result);

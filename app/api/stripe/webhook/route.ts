@@ -70,7 +70,6 @@ export async function POST(request: Request) {
         const tierMap: Record<string, string> = {
           [process.env.STRIPE_PRICE_SCHOLAR!]: 'scholar',
           [process.env.STRIPE_PRICE_CHAMPION!]: 'champion',
-          [process.env.STRIPE_PRICE_ULTIMATE!]: 'ultimate',
         };
         const tier = tierMap[priceId];
 

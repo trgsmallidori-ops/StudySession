@@ -6,8 +6,8 @@ export interface Translations {
   cookie: { message: string; decline: string; accept: string; details: string; privacyLink: string; termsLink: string };
   home: { heroTitle1: string; heroTitle2: string; heroSubtitle: string; getStarted: string; viewPlans: string; threeWays: string; excel: string; smartCalendar: string; smartCalendarDesc: string; tryCalendar: string; learnEarnXp: string; learnEarnXpDesc: string; exploreCourses: string; monthlyRace: string; monthlyRaceDesc: string; joinRace: string; gamifiedLearning: string; yourProgress: string; progressDesc: string; startEarning: string; loading: string };
   auth: { signIn: string; createAccount: string; resetPassword: string; email: string; password: string; fullName: string; signingIn: string; creatingAccount: string; sending: string; sendResetLink: string; continueGoogle: string; noAccount: string; haveAccount: string; forgotPassword: string; backToLogin: string; checkEmail: string; confirmLink: string; resetLink: string; agreeTerms: string; and: string; mustAgree: string; passwordRequirements: string };
-  dashboard: { welcomeBack: string; level: string; subscription: string; calendarUploads: string; used: string; freeUploads: string; unlimited: string; xpTotal: string; upgradePlan: string; managePlan: string; manageSubscription: string; managingSubscription: string; calendarDesc: string; learnDesc: string; raceDesc: string; planFeatures: { free: string[]; scholar: string[]; champion: string[]; ultimate: string[] } };
-  pricing: { chooseYourPlan: string; subtitle: string; raceEligibility: string; raceEligibilityDetail: string; signInToStart: string; needAccount: string; signIn: string; createAccount: string; unlockLearn: string; unlockDesc: string; mostPopular: string; signInToPurchase: string; loading: string; freeTrial: string; cancelAnytime: string; plans: { scholar: { name: string; description: string; features: string[]; cta: string }; ultimate: { name: string; description: string; features: string[]; cta: string }; champion: { name: string; description: string; features: string[]; cta: string } } };
+  dashboard: { welcomeBack: string; level: string; subscription: string; calendarUploads: string; used: string; freeUploads: string; uploadsPerYear: string; unlimited: string; xpTotal: string; upgradePlan: string; managePlan: string; manageSubscription: string; managingSubscription: string; calendarDesc: string; learnDesc: string; raceDesc: string; planFeatures: { free: string[]; scholar: string[]; champion: string[]; ultimate: string[] } };
+  pricing: { chooseYourPlan: string; subtitle: string; raceEligibility: string; raceEligibilityDetail: string; signInToStart: string; needAccount: string; signIn: string; createAccount: string; unlockLearn: string; unlockDesc: string; mostPopular: string; signInToPurchase: string; loading: string; freeTrial: string; cancelAnytime: string; plans: { scholar: { name: string; description: string; features: string[]; cta: string }; champion: { name: string; description: string; features: string[]; cta: string } } };
   contact: { title: string; subtitle: string; name: string; email: string; message: string; send: string; successTitle: string; successMessage: string; failedToSend: string; validation: { nameRequired: string; emailRequired: string; messageMin: string } };
   blog: { title: string; noPosts: string; poweredBy: string };
   calendar: { title: string; addClass: string; clearCalendar: string; clearing: string; uploadSyllabus: string; importOutline: string; editClass: string; newClass: string; yourClasses: string; filteringBy: string; filteringByPlural: string; clickToFilter: string; showAll: string; noClasses: string; loading: string; confirmClear: string; edit: string; delete: string; uploadsUsed: string; dropOutline: string; uploadHint: string; invalidFile: string; fileTooLarge: string; parseFailed: string };
@@ -117,6 +117,7 @@ const translationsData: Record<Locale, Translations> = {
       calendarUploads: 'Calendar Uploads',
       used: 'used',
       freeUploads: '2 free uploads',
+      uploadsPerYear: 'per year',
       unlimited: 'Unlimited',
       xpTotal: 'XP total',
       upgradePlan: 'Upgrade plan →',
@@ -128,23 +129,23 @@ const translationsData: Record<Locale, Translations> = {
       raceDesc: 'Join the monthly productivity challenge. Compete for prizes.',
       planFeatures: {
         free: ['2 calendar uploads', 'Basic calendar view'],
-        scholar: ['AI-powered course outline parsing', 'Unlimited calendar uploads', 'Color-coded class schedules'],
-        champion: ['Everything in Scholar', 'Full Learn section access', 'XP system & achievements', 'Monthly race participation'],
-        ultimate: ['Everything in Champion', 'All Scholar features', 'Best value bundle'],
+        scholar: ['AI-powered course outline parsing', '30 calendar uploads per year', 'Color-coded class schedules', 'Calendar section only'],
+        champion: ['Full site access', 'Learn section, courses & XP', '3 course generations per day', 'Monthly race participation', 'Access ends when subscription ends'],
+        ultimate: ['Full site access (legacy)', 'Same as Champion'],
       },
     },
     // Pricing
     pricing: {
       chooseYourPlan: 'Choose Your Plan',
       subtitle: 'Level up your learning with AI-powered tools and gamified courses.',
-      raceEligibility: 'Only Ultimate and Champion subscribers are eligible to participate in the race.',
+      raceEligibility: 'Only Champion subscribers are eligible to participate in the race.',
       raceEligibilityDetail: 'Races are started by admins once a month. You will receive a notification when a race starts.',
       signInToStart: 'Sign in to get started',
       needAccount: 'You need an account before purchasing a plan. Create one for free — it only takes a second.',
       signIn: 'Sign In',
       createAccount: 'Create Account',
       unlockLearn: 'Unlock Learn & XP',
-      unlockDesc: 'The Champion or Ultimate plan gives you full access to the Learn section, course creation, XP, achievements, and monthly races.',
+      unlockDesc: 'The Champion plan gives you full access to the Learn section, course creation (3 per day), XP, achievements, and monthly races.',
       mostPopular: 'Most Popular',
       signInToPurchase: 'Sign in to purchase',
       loading: 'Loading...',
@@ -153,20 +154,14 @@ const translationsData: Record<Locale, Translations> = {
       plans: {
         scholar: {
           name: 'Scholar',
-          description: 'AI Calendar parsing & unlimited uploads',
-          features: ['AI-powered course outline parsing', 'Unlimited calendar uploads', 'Color-coded class schedules'],
+          description: 'Calendar only — 30 uploads per year',
+          features: ['AI-powered course outline parsing', '30 calendar uploads per year', 'Color-coded class schedules', 'Calendar section only'],
           cta: 'Get Scholar',
-        },
-        ultimate: {
-          name: 'Ultimate',
-          description: 'Everything. Best value.',
-          features: ['Everything in Champion', 'All Scholar features', 'Best value bundle'],
-          cta: 'Get Ultimate',
         },
         champion: {
           name: 'Champion',
-          description: 'Learn section & race eligibility',
-          features: ['Everything in Scholar', 'Full Learn section access', 'Create & complete courses', 'XP system & achievements', 'Monthly race participation'],
+          description: 'Full site access — 3 course generations per day',
+          features: ['Full site access', 'Learn section, courses & XP', '3 course generations per day', 'Monthly race participation', 'Access ends when subscription ends'],
           cta: 'Get Champion',
         },
       },
@@ -341,7 +336,7 @@ const translationsData: Record<Locale, Translations> = {
     // Race
     race: {
       title: 'Race',
-      subtitle: 'Compete for cash prizes. Champion & Ultimate subscribers only.',
+      subtitle: 'Compete for cash prizes. Champion subscribers only.',
       officialRules: 'Official Rules →',
       upcomingRace: 'Upcoming Race',
       noActiveRace: 'No active race. Check back soon!',
@@ -365,7 +360,7 @@ const translationsData: Record<Locale, Translations> = {
       cancelButton: 'Cancel',
       agreeJoin: 'I Agree & Join',
       participationNote: 'Participation is optional.',
-      subscriptionRequired: 'Champion or Ultimate subscription required.',
+      subscriptionRequired: 'Champion subscription required.',
       cashPrizes: 'Cash Prizes',
       first: '1st',
       second: '2nd',
@@ -504,6 +499,7 @@ const translationsData: Record<Locale, Translations> = {
       calendarUploads: 'Téléchargements calendrier',
       used: 'utilisés',
       freeUploads: '2 téléchargements gratuits',
+      uploadsPerYear: 'par an',
       unlimited: 'Illimité',
       xpTotal: 'XP total',
       upgradePlan: 'Mettre à niveau →',
@@ -515,23 +511,23 @@ const translationsData: Record<Locale, Translations> = {
       raceDesc: 'Rejoignez le défi mensuel de productivité. Compétez pour des prix.',
       planFeatures: {
         free: ['2 téléchargements de calendrier', 'Vue calendrier basique'],
-        scholar: ["Analyse de programme de cours par IA", "Téléchargements de calendrier illimités", "Emplois du temps codés par couleur"],
-        champion: ["Tout de Scholar", "Accès complet à la section Apprendre", "Système XP & succès", "Participation aux courses mensuelles"],
-        ultimate: ["Tout de Champion", "Toutes les fonctionnalités Scholar", "Meilleur rapport qualité-prix"],
+        scholar: ["Analyse de programme de cours par IA", "30 téléchargements de calendrier par an", "Emplois du temps codés par couleur", "Section calendrier uniquement"],
+        champion: ["Accès au site complet", "Section Apprendre, cours et XP", "3 générations de cours par jour", "Participation aux courses mensuelles", "Accès jusqu'à la fin de l'abonnement"],
+        ultimate: ["Accès complet (legacy)", "Identique à Champion"],
       },
     },
     // Pricing
     pricing: {
       chooseYourPlan: 'Choisissez votre plan',
       subtitle: 'Améliorez votre apprentissage avec des outils alimentés par IA et des cours gamifiés.',
-      raceEligibility: 'Seuls les abonnés Ultimate et Champion peuvent participer à la course.',
+      raceEligibility: 'Seuls les abonnés Champion peuvent participer à la course.',
       raceEligibilityDetail: 'Les courses sont lancées par les administrateurs une fois par mois. Vous recevrez une notification lorsqu\'une course démarre.',
       signInToStart: 'Connectez-vous pour commencer',
       needAccount: "Vous avez besoin d'un compte avant d'acheter un plan. Créez-en un gratuitement — ça ne prend qu'une seconde.",
       signIn: 'Se connecter',
       createAccount: 'Créer un compte',
       unlockLearn: 'Débloquer Apprendre & XP',
-      unlockDesc: 'Le plan Champion ou Ultimate vous donne un accès complet à la section Apprendre, la création de cours, les XP, les succès et les courses mensuelles.',
+      unlockDesc: 'Le plan Champion vous donne un accès complet à la section Apprendre, la création de cours (3 par jour), les XP, les succès et les courses mensuelles.',
       mostPopular: 'Le plus populaire',
       signInToPurchase: 'Se connecter pour acheter',
       loading: 'Chargement...',
@@ -540,20 +536,14 @@ const translationsData: Record<Locale, Translations> = {
       plans: {
         scholar: {
           name: 'Scholar',
-          description: 'Analyse de calendrier IA & téléchargements illimités',
-          features: ["Analyse de programme de cours par IA", "Téléchargements de calendrier illimités", "Emplois du temps codés par couleur"],
+          description: 'Calendrier uniquement — 30 téléchargements par an',
+          features: ["Analyse de programme de cours par IA", "30 téléchargements de calendrier par an", "Emplois du temps codés par couleur", "Section calendrier uniquement"],
           cta: 'Obtenir Scholar',
-        },
-        ultimate: {
-          name: 'Ultimate',
-          description: 'Tout inclus. Meilleur rapport qualité-prix.',
-          features: ["Tout de Champion", "Toutes les fonctionnalités Scholar", "Meilleur rapport qualité-prix"],
-          cta: 'Obtenir Ultimate',
         },
         champion: {
           name: 'Champion',
-          description: 'Section Apprendre & éligibilité aux courses',
-          features: ["Tout de Scholar", "Accès complet à la section Apprendre", "Créer et compléter des cours", "Système XP & succès", "Participation aux courses mensuelles"],
+          description: 'Accès complet — 3 générations de cours par jour',
+          features: ["Accès au site complet", "Section Apprendre, cours et XP", "3 générations de cours par jour", "Participation aux courses mensuelles", "Accès jusqu'à la fin de l'abonnement"],
           cta: 'Obtenir Champion',
         },
       },
@@ -728,7 +718,7 @@ const translationsData: Record<Locale, Translations> = {
     // Race
     race: {
       title: 'Course',
-      subtitle: 'Compétez pour des prix en argent. Abonnés Champion & Ultimate uniquement.',
+      subtitle: 'Compétez pour des prix en argent. Abonnés Champion uniquement.',
       officialRules: 'Règlement officiel →',
       upcomingRace: 'Course à venir',
       noActiveRace: 'Aucune course active. Revenez bientôt !',
@@ -752,7 +742,7 @@ const translationsData: Record<Locale, Translations> = {
       cancelButton: 'Annuler',
       agreeJoin: "J'accepte et rejoins",
       participationNote: 'La participation est facultative.',
-      subscriptionRequired: 'Abonnement Champion ou Ultimate requis.',
+      subscriptionRequired: 'Abonnement Champion requis.',
       cashPrizes: 'Prix en argent',
       first: '1er',
       second: '2e',

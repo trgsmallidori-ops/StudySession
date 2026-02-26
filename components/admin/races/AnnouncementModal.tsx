@@ -82,7 +82,7 @@ export default function AnnouncementModal({
         </div>
 
         <p className="text-sm text-foreground/70 mb-4">
-          Sends an email to all Champion and Ultimate subscribers. Race: <strong>{raceTitle}</strong>
+          Sends an email to all Champion subscribers. Race: <strong>{raceTitle}</strong>
         </p>
 
         {sentCount !== null ? (

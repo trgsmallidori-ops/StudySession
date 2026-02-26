@@ -71,7 +71,6 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Subscription Tiers
 
-- **Scholar** ($30/year) - AI calendar parsing, unlimited uploads
-- **Champion** ($10/month) - Learn section, XP system, race eligibility
-- **Ultimate** ($11/month) - All features, best value
+- **Scholar** ($15/year) - Calendar only; AI syllabus parsing, 30 calendar uploads per year
+- **Champion** ($8/month) - Full site access; Learn section, 3 course generations per day, XP, race eligibility. Access ends when subscription ends.
 # StudySession

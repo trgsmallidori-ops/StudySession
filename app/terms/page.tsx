@@ -46,15 +46,15 @@ export default function TermsPage() {
               </p>
               <p>
                 Vous n'êtes jamais obligé de dépenser de l'argent au-delà de votre abonnement choisi pour utiliser une fonctionnalité.
-                L'abonnement Ultimate n'est pas uniquement destiné aux courses — il débloque tout le potentiel du site,
-                y compris les fonctionnalités IA, tous les cours, le calendrier et les compétitions mensuelles.
+                L'abonnement Champion débloque tout le potentiel du site,
+                y compris la section Apprendre, la création de cours (3 par jour), les XP et les compétitions mensuelles.
               </p>
             </section>
             <section>
               <h2 className="text-2xl font-semibold mb-4">5. Compétitions mensuelles</h2>
               <p>
                 Le Défi mensuel de productivité est entièrement facultatif. Vous n'êtes en aucun cas obligé de participer.
-                Il s'agit d'une fonctionnalité volontaire pour les utilisateurs ayant souscrit un abonnement Champion ou Ultimate.
+                Il s'agit d'une fonctionnalité volontaire pour les utilisateurs ayant souscrit un abonnement Champion.
                 Aucun paiement supplémentaire ou frais d'entrée n'est requis — les prix sont financés par Spaxio.
               </p>
             </section>
@@ -102,15 +102,15 @@ export default function TermsPage() {
               </p>
               <p>
                 You are never required to spend money beyond your chosen subscription to use any feature.
-                The Ultimate subscription is not solely for races—it unlocks the site&apos;s full potential,
-                including AI features, all courses, the calendar, and monthly competitions.
+                The Champion subscription unlocks the site&apos;s full potential,
+                including the Learn section, course creation (3 per day), XP, and monthly competitions.
               </p>
             </section>
             <section>
               <h2 className="text-2xl font-semibold mb-4">5. Monthly Competitions</h2>
               <p>
                 The Monthly Productivity Challenge is entirely optional. By no means do you have to participate.
-                It is a voluntary feature for users who have purchased the Champion or Ultimate subscription.
+                It is a voluntary feature for users who have purchased the Champion subscription.
                 No additional payment or entry fee is required from you—prizes are funded by Spaxio.
               </p>
             </section>

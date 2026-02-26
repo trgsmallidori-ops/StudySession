@@ -110,10 +110,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     const tier = profile?.subscription_tier ?? 'free';
-    const canUseAI = isAdmin(user) || tier === 'scholar' || tier === 'ultimate';
+    const canUseAI = isAdmin(user) || tier === 'scholar';
     if (!canUseAI) {
       return NextResponse.json(
-        { error: 'Upgrade to Scholar or Ultimate to use the AI calendar assistant', code: 'AI_TIER_REQUIRED' },
+        { error: 'Upgrade to Scholar to use the AI calendar assistant', code: 'AI_TIER_REQUIRED' },
         { status: 403 }
       );
     }

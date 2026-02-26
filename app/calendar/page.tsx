@@ -3,13 +3,30 @@ import { createClient } from '@/lib/supabase/server';
 import CalendarPageClient from './CalendarPageClient';
 import { isAdmin } from '@/lib/isAdmin';
 
+const SCHOLAR_UPLOAD_LIMIT = 30;
+
 async function getProfile(userId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from('users')
-    .select('calendar_uploads_used, subscription_tier')
+    .select('calendar_uploads_used, calendar_uploads_year, subscription_tier')
     .eq('id', userId)
     .single();
+  if (!data) return data;
+  const tier = data.subscription_tier ?? 'free';
+  const currentYear = new Date().getFullYear();
+  if (tier === 'scholar' && data.calendar_uploads_year !== currentYear) {
+    await supabase
+      .from('users')
+      .update({ calendar_uploads_used: 0, calendar_uploads_year: currentYear })
+      .eq('id', userId);
+    const { data: updated } = await supabase
+      .from('users')
+      .select('calendar_uploads_used, subscription_tier')
+      .eq('id', userId)
+      .single();
+    return updated ?? data;
+  }
   return data;
 }
 
@@ -54,11 +71,12 @@ export default async function CalendarPage() {
 
   const profile = await getProfile(user.id);
   const uploadsUsed = profile?.calendar_uploads_used ?? 0;
-  const uploadLimit = profile?.subscription_tier === 'free' ? 2 : 999;
   const tier = profile?.subscription_tier ?? 'free';
+  const uploadLimit =
+    tier === 'free' ? 2 : tier === 'scholar' ? SCHOLAR_UPLOAD_LIMIT : 999;
   const admin = isAdmin(user);
-  const canUseAI = admin || tier === 'scholar' || tier === 'ultimate';
-  const canGenerateStudyCourse = admin || tier === 'ultimate';
+  const canUseAI = admin || tier === 'scholar';
+  const canGenerateStudyCourse = admin || tier === 'champion' || tier === 'ultimate';
 
   return (
     <CalendarPageClient

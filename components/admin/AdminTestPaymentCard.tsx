@@ -12,10 +12,6 @@ const TEST_PLANS = [
     name: 'Champion',
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_CHAMPION,
   },
-  {
-    name: 'Ultimate',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ULTIMATE,
-  },
 ];
 
 export default function AdminTestPaymentCard() {

@@ -11,7 +11,6 @@ const getStripe = () => {
 const PRICE_TO_TIER: Record<string, string> = {
   [process.env.STRIPE_PRICE_SCHOLAR!]: 'scholar',
   [process.env.STRIPE_PRICE_CHAMPION!]: 'champion',
-  [process.env.STRIPE_PRICE_ULTIMATE!]: 'ultimate',
 };
 
 export async function POST(request: Request) {

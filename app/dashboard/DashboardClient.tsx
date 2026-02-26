@@ -86,7 +86,11 @@ export default function DashboardClient({ profile, email }: DashboardClientProps
             </div>
           </div>
           <p className="text-sm text-foreground/60">
-            {profile?.subscription_tier === 'free' ? t.dashboard.freeUploads : t.dashboard.unlimited}
+            {profile?.subscription_tier === 'free'
+              ? t.dashboard.freeUploads
+              : profile?.subscription_tier === 'scholar'
+                ? `30 ${t.dashboard.uploadsPerYear}`
+                : t.dashboard.unlimited}
           </p>
         </div>
       </div>

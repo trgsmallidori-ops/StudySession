@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const tier = profile?.subscription_tier ?? 'free';
   if (tier !== 'champion' && tier !== 'ultimate') {
     return NextResponse.json(
-      { error: 'Champion or Ultimate subscription required' },
+      { error: 'Champion subscription required' },
       { status: 403 }
     );
   }

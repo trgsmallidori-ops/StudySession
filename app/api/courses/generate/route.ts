@@ -65,9 +65,25 @@ export async function POST(request: Request) {
 
     if (!hasAccess) {
       return NextResponse.json(
-        { error: 'Champion or Ultimate subscription required' },
+        { error: 'Champion subscription required' },
         { status: 403 }
       );
+    }
+
+    const COURSE_GENERATIONS_PER_DAY = 3;
+    if (!isAdmin(user)) {
+      const todayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
+      const { count } = await supabase
+        .from('courses')
+        .select('*', { count: 'exact', head: true })
+        .eq('creator_id', user.id)
+        .gte('created_at', todayStart);
+      if ((count ?? 0) >= COURSE_GENERATIONS_PER_DAY) {
+        return NextResponse.json(
+          { error: `Daily limit reached. You can generate up to ${COURSE_GENERATIONS_PER_DAY} courses per day.` },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await request.json();

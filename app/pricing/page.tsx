@@ -10,7 +10,7 @@ function getCanonicalUrl(path: string): string {
 export const metadata = {
   title: "Pricing — Online Learning Platform Plans",
   description:
-    "StudySession pricing: Free tier with AI calendar, Scholar, Champion, and Ultimate plans. Course subscription for gamified learning and monthly races.",
+    "StudySession pricing: Free tier with AI calendar, Scholar ($15/year) and Champion ($8/month) plans. Calendar uploads and gamified learning with monthly races.",
   keywords: [
     "online learning platform pricing",
     "course subscription",

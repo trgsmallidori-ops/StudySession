@@ -13,6 +13,7 @@ export interface User {
   subscription_id: string | null;
   total_xp: number;
   calendar_uploads_used: number;
+  calendar_uploads_year: number | null;
   is_admin: boolean;
   created_at: string;
   updated_at: string;

@@ -119,6 +119,13 @@ export default function PricingContent() {
                 {t.pricing.mostPopular}
               </div>
             )}
+            {plan.key === 'champion' && (
+              <div className="mb-6 py-4 px-5 rounded-xl bg-green-500/20 border border-green-400/50 text-center">
+                <p className="text-2xl font-bold text-green-400 uppercase tracking-wide">
+                  {t.pricing.championFreeTrialBadge}
+                </p>
+              </div>
+            )}
             <div className="flex-1 flex flex-col">
             <div className={`p-3 rounded-xl bg-${plan.color}/10 w-fit mb-6`}>
               <plan.icon className={`text-${plan.color}`} size={32} />

@@ -9,7 +9,7 @@ export default async function AccountPage() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('id, email, full_name, username, username_updated_at, subscription_tier, subscription_id')
+    .select('id, email, full_name, full_name_updated_at, username, username_updated_at, subscription_tier, subscription_id')
     .eq('id', user.id)
     .single();
 

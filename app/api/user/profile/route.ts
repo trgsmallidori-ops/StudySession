@@ -9,7 +9,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('users')
-    .select('id, email, full_name, username, username_updated_at')
+    .select('id, email, full_name, full_name_updated_at, username, username_updated_at')
     .eq('id', user.id)
     .single();
 
@@ -26,9 +26,29 @@ export async function PATCH(request: Request) {
   const { full_name, username, email } = body;
 
   const updates: Record<string, unknown> = {};
+  const adminClient = createAdminClient();
 
   if (full_name !== undefined) {
-    updates.full_name = full_name.trim();
+    const trimmed = full_name.trim();
+    const { data: currentUser } = await adminClient
+      .from('users')
+      .select('full_name_updated_at')
+      .eq('id', user.id)
+      .single();
+
+    if (currentUser?.full_name_updated_at) {
+      const lastChange = new Date(currentUser.full_name_updated_at);
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      if (lastChange > oneWeekAgo) {
+        const nextAllowed = new Date(lastChange.getTime() + 7 * 24 * 60 * 60 * 1000);
+        return NextResponse.json({
+          error: `You can change your full name again on ${nextAllowed.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`,
+        }, { status: 429 });
+      }
+    }
+
+    updates.full_name = trimmed;
+    updates.full_name_updated_at = new Date().toISOString();
   }
 
   if (username !== undefined) {
@@ -42,7 +62,6 @@ export async function PATCH(request: Request) {
     }
 
     // Check the 2-week cooldown
-    const adminClient = createAdminClient();
     const { data: current } = await adminClient
       .from('users')
       .select('username, username_updated_at')

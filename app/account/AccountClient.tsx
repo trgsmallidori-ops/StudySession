@@ -14,6 +14,7 @@ interface Profile {
   id: string;
   email: string;
   full_name: string | null;
+  full_name_updated_at: string | null;
   username: string | null;
   username_updated_at: string | null;
   subscription_tier?: string | null;
@@ -48,6 +49,11 @@ export default function AccountClient({ profile, userEmail }: Props) {
 
   const supabase = createClient();
   const router = useRouter();
+
+  const fullNameNextAllowed = profile?.full_name_updated_at
+    ? new Date(new Date(profile.full_name_updated_at).getTime() + 7 * 24 * 60 * 60 * 1000)
+    : null;
+  const canChangeFullName = !fullNameNextAllowed || fullNameNextAllowed <= new Date();
 
   const usernameNextAllowed = profile?.username_updated_at
     ? new Date(new Date(profile.username_updated_at).getTime() + 14 * 24 * 60 * 60 * 1000)
@@ -89,7 +95,7 @@ export default function AccountClient({ profile, userEmail }: Props) {
     setSaveSuccess(false);
 
     const payload: Record<string, string> = {};
-    if (fullName !== (profile?.full_name ?? '')) payload.full_name = fullName;
+    if (canChangeFullName && fullName !== (profile?.full_name ?? '')) payload.full_name = fullName;
     if (email !== userEmail) payload.email = email;
     if (canChangeUsername && username.trim().toLowerCase() !== (profile?.username ?? '')) {
       if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
@@ -196,13 +202,25 @@ export default function AccountClient({ profile, userEmail }: Props) {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-foreground/70 mb-1.5">Full Name</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Your full name"
-                  className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
-                />
+                {canChangeFullName ? (
+                  <>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
+                    />
+                    <p className="text-xs text-foreground/40 mt-1">You can change your full name every week</p>
+                  </>
+                ) : (
+                  <div className="px-4 py-3 rounded-lg bg-background/30 border border-white/5 text-foreground/60 flex items-center justify-between">
+                    <span>{profile?.full_name || '—'}</span>
+                    <span className="text-xs text-foreground/40" suppressHydrationWarning>
+                      Next change: {fullNameNextAllowed?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div>

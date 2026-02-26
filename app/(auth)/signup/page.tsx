@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { validatePassword } from '@/lib/auth/passwordValidation';
 
 type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
@@ -59,6 +60,8 @@ function SignupForm() {
     if (!agreeToTerms) { setError(t.auth.mustAgree); return; }
     if (!username.trim()) { setError('Please choose a username'); return; }
     if (usernameStatus !== 'available') { setError('Please choose a valid, available username'); return; }
+    const pwCheck = validatePassword(password);
+    if (!pwCheck.valid) { setError(pwCheck.message ?? t.auth.passwordRequirements); return; }
 
     setLoading(true);
 
@@ -173,9 +176,10 @@ function SignupForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
               className="w-full px-4 py-3 rounded-lg bg-background/50 border border-white/10 text-foreground focus:border-accent-cyan focus:outline-none"
             />
+            <p className="text-xs text-foreground/50 mt-1">{t.auth.passwordRequirements}</p>
           </div>
 
           <label className="flex items-start gap-3 cursor-pointer">

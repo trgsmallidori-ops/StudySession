@@ -47,6 +47,7 @@ export async function POST(request: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?canceled=true`,
       customer_email: user.email ?? undefined,
       ...(currency ? { currency } : {}),
+      ...(tier === 'champion' ? { subscription_data: { trial_period_days: 14 } } : {}),
       metadata: {
         user_id: user.id,
         tier,

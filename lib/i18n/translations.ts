@@ -130,7 +130,7 @@ const translationsData: Record<Locale, Translations> = {
       planFeatures: {
         free: ['2 calendar uploads', 'Basic calendar view'],
         scholar: ['AI-powered course outline parsing', '30 calendar uploads per year', 'Color-coded class schedules', 'Calendar section only'],
-        champion: ['Full site access', 'Learn section, courses & XP', '3 course generations per day', 'Monthly race participation', 'Access ends when subscription ends'],
+        champion: ['2-week free trial', 'Full site access', 'Learn section, courses & XP', '3 course generations per day', 'Monthly race participation', 'Access ends when subscription ends'],
         ultimate: ['Full site access (legacy)', 'Same as Champion'],
       },
     },
@@ -149,7 +149,7 @@ const translationsData: Record<Locale, Translations> = {
       mostPopular: 'Most Popular',
       signInToPurchase: 'Sign in to purchase',
       loading: 'Loading...',
-      freeTrial: 'All plans include a free trial. Cancel anytime.',
+      freeTrial: 'Champion includes a 2-week free trial. Cancel anytime.',
       cancelAnytime: 'Cancel at anytime.',
       plans: {
         scholar: {
@@ -161,7 +161,7 @@ const translationsData: Record<Locale, Translations> = {
         champion: {
           name: 'Champion',
           description: 'Full site access — 3 course generations per day',
-          features: ['Full site access', 'Learn section, courses & XP', '3 course generations per day', 'Monthly race participation', 'Access ends when subscription ends'],
+          features: ['2-week free trial', 'Full site access', 'Learn section, courses & XP', '3 course generations per day', 'Monthly race participation', 'Access ends when subscription ends'],
           cta: 'Get Champion',
         },
       },
@@ -517,7 +517,7 @@ const translationsData: Record<Locale, Translations> = {
       planFeatures: {
         free: ['2 téléchargements de calendrier', 'Vue calendrier basique'],
         scholar: ["Analyse de programme de cours par IA", "30 téléchargements de calendrier par an", "Emplois du temps codés par couleur", "Section calendrier uniquement"],
-        champion: ["Accès au site complet", "Section Apprendre, cours et XP", "3 générations de cours par jour", "Participation aux courses mensuelles", "Accès jusqu'à la fin de l'abonnement"],
+        champion: ["2 semaines d'essai gratuit", "Accès au site complet", "Section Apprendre, cours et XP", "3 générations de cours par jour", "Participation aux courses mensuelles", "Accès jusqu'à la fin de l'abonnement"],
         ultimate: ["Accès complet (legacy)", "Identique à Champion"],
       },
     },
@@ -536,7 +536,7 @@ const translationsData: Record<Locale, Translations> = {
       mostPopular: 'Le plus populaire',
       signInToPurchase: 'Se connecter pour acheter',
       loading: 'Chargement...',
-      freeTrial: 'Tous les plans incluent un essai gratuit. Annulez à tout moment.',
+      freeTrial: 'Champion inclut un essai gratuit de 2 semaines. Annulez à tout moment.',
       cancelAnytime: 'Annulez à tout moment.',
       plans: {
         scholar: {
@@ -548,7 +548,7 @@ const translationsData: Record<Locale, Translations> = {
         champion: {
           name: 'Champion',
           description: 'Accès complet — 3 générations de cours par jour',
-          features: ["Accès au site complet", "Section Apprendre, cours et XP", "3 générations de cours par jour", "Participation aux courses mensuelles", "Accès jusqu'à la fin de l'abonnement"],
+          features: ["2 semaines d'essai gratuit", "Accès au site complet", "Section Apprendre, cours et XP", "3 générations de cours par jour", "Participation aux courses mensuelles", "Accès jusqu'à la fin de l'abonnement"],
           cta: 'Obtenir Champion',
         },
       },
